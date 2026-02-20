@@ -143,6 +143,14 @@ enum FlexProtocol {
         "eq \(type.rawValue) 63Hz=0 125Hz=0 250Hz=0 500Hz=0 1000Hz=0 2000Hz=0 4000Hz=0 8000Hz=0"
     }
 
+    // MARK: DAX TX (transmit audio from computer to radio)
+
+    /// Enable or disable the DAX TX channel on a slice.
+    /// Must be called before the radio will accept VITA-49 mic audio on UDP.
+    static func setDAXTX(index: Int, enabled: Bool) -> String {
+        sliceSet(index: index, key: "dax_tx", value: enabled ? "1" : "0")
+    }
+
     // MARK: Radio
 
     static func clientUDPRegister(handle: String) -> String { "client udp_register handle=\(handle)" }

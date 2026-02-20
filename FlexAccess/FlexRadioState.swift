@@ -59,6 +59,13 @@ final class FlexRadioState: ObservableObject {
     @Published private(set) var audioPacketCount: Int = 0
     @Published private(set) var lanAudioLastPacketAt: Date? = nil
     @Published private(set) var isOpusPath: Bool = false
+
+    // MARK: Mic TX
+
+    /// When true, PTT down/up automatically starts/stops microphone capture.
+    @Published var isMicTXEnabled: Bool = false
+    /// True while mic audio is actively being captured and sent to the radio.
+    @Published private(set) var isMicActive: Bool = false
     @Published var lanAudioOutputGain: Float = 1.0 {
         didSet { audioPlayer?.gain = lanAudioOutputGain }
     }
@@ -91,6 +98,10 @@ final class FlexRadioState: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var pendingWANRadio: DiscoveredRadio? = nil
     private var pendingWANHandle: String? = nil
+
+    private var micCapture: FlexMicCapture?
+    private var txDAXStreamID: UInt32 = 0x00000001  // updated from radio's dax_tx stream status
+    private var currentRadioIP: String = ""         // set on connect; used for mic UDP target
 
     // MARK: Init
 
@@ -133,6 +144,7 @@ final class FlexRadioState: ObservableObject {
         lastError = nil
         radioModel = radio.model
         isWAN = (radio.source == .smartlink)
+        currentRadioIP = isWAN ? radio.publicIp : radio.ip
         FlexSettings.saveLastSerial(radio.id)
         if radio.source == .local { FlexSettings.saveLastLocalRadio(ip: radio.ip, port: radio.port) }
         appendLog("Connecting to \(radio.displayName) [\(radio.source.rawValue)]")
@@ -242,8 +254,10 @@ final class FlexRadioState: ObservableObject {
         audioPlayer      = player
         lanAudioError    = nil
 
-        // Enable DAX channel 1 on the active slice
+        // Enable DAX RX channel 1 and DAX TX on the active slice.
+        // DAX TX must be enabled so the radio will accept our VITA-49 mic packets.
         send(FlexProtocol.setDAX(index: sliceIndex, channel: 1))
+        send(FlexProtocol.setDAXTX(index: sliceIndex, enabled: true))
         appendLog("DAX audio started on UDP \(udpPort)")
     }
 
@@ -298,7 +312,13 @@ final class FlexRadioState: ObservableObject {
     func setPTT(down: Bool) {
         send(down ? FlexProtocol.pttDown() : FlexProtocol.pttUp())
         isTX = down
-        if down { announceAccessibility("Transmitting") } else { announceAccessibility("Receiving") }
+        if down {
+            announceAccessibility("Transmitting")
+            if isMicTXEnabled { startMicCapture() }
+        } else {
+            announceAccessibility("Receiving")
+            if isMicActive { stopMicCapture() }
+        }
     }
 
     // MARK: Public — equalizer
@@ -509,11 +529,18 @@ final class FlexRadioState: ObservableObject {
     // MARK: Private — DAX audio
 
     private func applyAudioStreamProps(_ props: [String: String]) {
-        // Extract stream ID from the synthetic "_streamid" key we added in parseStatusLine.
+        // Extract stream ID from the synthetic "_streamid" key injected in parseStatusLine.
         if let hexStr = props["_streamid"],
            let streamID = UInt32(hexStr.dropFirst(2), radix: 16) {
-            vitaReceiver?.expectedStreamID = streamID
-            AppFileLogger.shared.log("VITAReceiver: filtering on stream ID \(hexStr)")
+            let isDaxTX = props["type"] == "dax_tx" || props["dax_tx"] == "1"
+            if isDaxTX {
+                // Store the TX stream ID so FlexMicCapture uses the correct VITA-49 stream ID.
+                txDAXStreamID = streamID
+                AppFileLogger.shared.log("DAX TX stream ID: \(hexStr)")
+            } else {
+                vitaReceiver?.expectedStreamID = streamID
+                AppFileLogger.shared.log("VITAReceiver: filtering on stream ID \(hexStr)")
+            }
         }
         if props["in_use"] == "1" { isDAXRunning = true }
         if props["in_use"] == "0" { isDAXRunning = false }
@@ -522,7 +549,9 @@ final class FlexRadioState: ObservableObject {
     private func stopDAXAudio(sendCommand: Bool) {
         if sendCommand && isDAXRunning {
             send(FlexProtocol.setDAX(index: sliceIndex, channel: 0))
+            send(FlexProtocol.setDAXTX(index: sliceIndex, enabled: false))
         }
+        stopMicCapture()
         vitaReceiver?.stop()
         vitaReceiver = nil
         audioPlayer?.stop()
@@ -531,6 +560,34 @@ final class FlexRadioState: ObservableObject {
         audioPacketCount = 0
         isDAXRunning = false
         isOpusPath = false
+    }
+
+    // MARK: Private — mic TX
+
+    private func startMicCapture() {
+        guard isDAXRunning, !currentRadioIP.isEmpty else {
+            appendLog("Mic TX: DAX must be running before PTT to send mic audio")
+            return
+        }
+        stopMicCapture()
+
+        let udpPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
+        let capture = FlexMicCapture()
+        capture.onLog   = { [weak self] msg in Task { @MainActor in self?.appendLog(msg) } }
+        capture.onError = { [weak self] msg in Task { @MainActor in self?.appendError("Mic: \(msg)") } }
+        do {
+            try capture.start(radioIP: currentRadioIP, port: udpPort, streamID: txDAXStreamID)
+            micCapture = capture
+            isMicActive = true
+        } catch {
+            appendError("Mic capture failed: \(error.localizedDescription)")
+        }
+    }
+
+    private func stopMicCapture() {
+        micCapture?.stop()
+        micCapture = nil
+        isMicActive = false
     }
 
     // MARK: Private — log helpers

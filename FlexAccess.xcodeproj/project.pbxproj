@@ -37,6 +37,7 @@
 		4B47478C77A2EAF0C71AECA0 /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */; };
 		540FF9F340BD574F496DA566 /* SliceSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE770B052624BA7F696A188 /* SliceSectionView.swift */; };
 		54DE4589245C1B30C9097E59 /* OpusDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886B27041E2F6674F9439CFF /* OpusDecoder.swift */; };
+		57BB7963C603D6B82F224D79 /* FlexMicCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C6492173FFBECDBBB12DD5 /* FlexMicCapture.swift */; };
 		57C2938192E12F644B7B2D79 /* FlexSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */; };
 		5E6AC5F4D26039BBC20CEDB1 /* LanAudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */; };
 		64014BCCA491001E6D7B3C8D /* FlexRadioState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */; };
@@ -45,6 +46,7 @@
 		67C51D4FC6B88733472B1847 /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBDED90420D42DFDCD7354 /* AppFileLogger.swift */; };
 		6CF020C8CF2E0B5636D428AC /* AudioOutputPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF310E333E0AC8D01C0097 /* AudioOutputPlayer.swift */; };
 		6FF35DA91A76CE5FDF0DF0DD /* ConnectionSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FF98676AD9DE4094D8EB /* ConnectionSectionView.swift */; };
+		75303A681AB505A31234EE73 /* FlexMicCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C6492173FFBECDBBB12DD5 /* FlexMicCapture.swift */; };
 		805FFB8D7EB204361E2E565D /* FlexAccessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */; };
 		8129F08C52BCF1817DAD76CE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71AF6B844B9BA40489E500A7 /* AVFoundation.framework */; };
 		83D198F8AA07299BFA43A004 /* FDnoiseIQ.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */; };
@@ -96,6 +98,7 @@
 		231EB64FB0719E704D6C07AE /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CoreMIDI.framework; sourceTree = "<group>"; };
 		271C41630FD9AD0E4E482457 /* FlexAccess.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FlexAccess.entitlements; sourceTree = "<group>"; };
 		2EE770B052624BA7F696A188 /* SliceSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliceSectionView.swift; sourceTree = "<group>"; };
+		38C6492173FFBECDBBB12DD5 /* FlexMicCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexMicCapture.swift; sourceTree = "<group>"; };
 		3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexRadioState.swift; sourceTree = "<group>"; };
 		4019ED9DECFF25EC872E05CB /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		402410528B09E2DDA6EE2CF6 /* VITAReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VITAReceiver.swift; sourceTree = "<group>"; };
@@ -202,6 +205,7 @@
 				C9705C21C169CA1B77C374A1 /* FlexConnection.swift */,
 				748404109724ACEAF4169019 /* FlexDiscovery.swift */,
 				D08A6CBC717C5902A3362C19 /* FlexKeychainStore.swift */,
+				38C6492173FFBECDBBB12DD5 /* FlexMicCapture.swift */,
 				A19293031B680FED82F4B659 /* FlexProtocol.swift */,
 				3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */,
 				8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */,
@@ -347,6 +351,7 @@
 				2C422B63D688683A9F6993E7 /* FlexConnection.swift in Sources */,
 				C58E34856E7ACE0C6F6472AC /* FlexDiscovery.swift in Sources */,
 				94BA41E1B91E4986EE1C29AF /* FlexKeychainStore.swift in Sources */,
+				75303A681AB505A31234EE73 /* FlexMicCapture.swift in Sources */,
 				957AD94F7732D409E28ED1D0 /* FlexProtocol.swift in Sources */,
 				AE7607D30467AD8FF3472260 /* FlexRadioState.swift in Sources */,
 				57C2938192E12F644B7B2D79 /* FlexSettings.swift in Sources */,
@@ -388,6 +393,7 @@
 				0756C844D78E4D8F36D2EC65 /* FlexConnection.swift in Sources */,
 				A6A970D6BBF9534870AF4B46 /* FlexDiscovery.swift in Sources */,
 				4548A61A6A4D26EC633291C2 /* FlexKeychainStore.swift in Sources */,
+				57BB7963C603D6B82F224D79 /* FlexMicCapture.swift in Sources */,
 				CA3002260B1F55B49D385C8A /* FlexProtocol.swift in Sources */,
 				64014BCCA491001E6D7B3C8D /* FlexRadioState.swift in Sources */,
 				923CFD112DF02A5DF622CD80 /* FlexSettings.swift in Sources */,

@@ -18,6 +18,8 @@ struct AudioSectionView: View {
 
                 daxSection
                 Divider()
+                micSection
+                Divider()
                 nrSection
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -107,6 +109,41 @@ struct AudioSectionView: View {
                     .foregroundStyle(.secondary)
             }
             #endif
+        }
+    }
+
+    // MARK: DAX Transmit Audio (Mic)
+
+    private var micSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("DAX Transmit Audio (Mic)")
+                .font(.headline)
+
+            Toggle("Send mic audio with PTT", isOn: $radio.isMicTXEnabled)
+                .accessibilityLabel("Send microphone audio when transmitting")
+                .accessibilityHint("When enabled, holds PTT down to start mic capture and PTT up to stop")
+
+            if radio.isMicTXEnabled {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(radio.isMicActive ? Color.red : Color.gray.opacity(0.4))
+                        .frame(width: 10, height: 10)
+                        .accessibilityHidden(true)
+                    Text(radio.isMicActive ? "Transmitting mic audio" : "Idle (PTT not held)")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundStyle(radio.isMicActive ? .red : .secondary)
+                        .accessibilityLabel(
+                            radio.isMicActive ? "Microphone active, transmitting" : "Microphone idle"
+                        )
+                }
+
+                Text("Start DAX first, then hold PTT (Option-Space or button) to transmit.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Text("Audio is sent at 24 kHz mono, duplicated to stereo for the radio.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
