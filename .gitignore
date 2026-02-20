@@ -1,0 +1,34 @@
+# Xcode
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+*.xccheckout
+*.moved-aside
+*.hmap
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Logs
+*.log
+
+# ThirdParty precompiled binaries — keep them
+!ThirdParty/NR/build/
+!ThirdParty/NR/build/*.a
+!ThirdParty/NR/build/*.pth
+!ThirdParty/wdsp/libwdsp_nr.a

@@ -1,0 +1,82 @@
+name: FlexAccess
+options:
+  bundleIdPrefix: com.w9fyi
+  deploymentTarget:
+    macOS: "14.0"
+    iOS: "17.0"
+  xcodeVersion: "16"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  FlexAccess:
+    type: application
+    platform: [macOS, iOS]
+    deploymentTarget:
+      macOS: "14.0"
+      iOS: "17.0"
+    sources:
+      - path: FlexAccess
+        excludes:
+          - "**/*.md"
+      - path: ThirdParty
+        buildPhase: none
+        type: folder
+      # WDSP C sources — compiled directly (same as Kenwood project)
+      - path: ThirdParty/wdsp/emnr.c
+        buildPhase: sources
+      - path: ThirdParty/wdsp/anr.c
+        buildPhase: sources
+      - path: ThirdParty/wdsp/calculus.c
+        buildPhase: sources
+      - path: ThirdParty/wdsp/WDSPWrapper.c
+        buildPhase: sources
+      - path: ThirdParty/wdsp/zetaHat.c
+        buildPhase: sources
+      - path: ThirdParty/wdsp/FDnoiseIQ.c
+        buildPhase: sources
+    resources:
+      - path: ThirdParty/NR/build/rnnoise10Ga_12.pth
+      - path: ThirdParty/NR/build/rnnoise10Gb_15.pth
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.w9fyi.flexaccess
+        INFOPLIST_FILE: FlexAccess/Info.plist
+        SWIFT_OBJC_BRIDGING_HEADER: FlexAccess/BridgingHeader.h
+        OTHER_LDFLAGS:
+          - "-ObjC"
+          - "-lc++"
+          - "/opt/homebrew/lib/libfftw3.a"
+          - "$(SRCROOT)/ThirdParty/NR/build/rnnoise.a"
+        HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/ThirdParty/wdsp"
+          - "$(SRCROOT)/ThirdParty/NR"
+          - "/opt/homebrew/include"
+        GCC_PREPROCESSOR_DEFINITIONS:
+          - "RNNOISE_C=1"
+          - "$(inherited)"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+      configs:
+        Release:
+          SWIFT_OPTIMIZATION_LEVEL: "-O"
+        Debug:
+          SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+    entitlements:
+      path: FlexAccess/FlexAccess.entitlements
+    dependencies:
+      - framework: AudioToolbox.framework
+        embed: false
+      - framework: CoreMIDI.framework
+        embed: false
+      - framework: AVFoundation.framework
+        embed: false
+      - framework: Network.framework
+        embed: false

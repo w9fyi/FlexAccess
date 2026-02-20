@@ -1,0 +1,725 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		036B7C8D16A65B3E564592F7 /* calculus.c in Sources */ = {isa = PBXBuildFile; fileRef = B99D76F90AB88A21CFC56969 /* calculus.c */; };
+		06CD45826B2AA9CDF4777267 /* emnr.c in Sources */ = {isa = PBXBuildFile; fileRef = FF4684E28CFB79A4DCE40DC3 /* emnr.c */; };
+		07096A0A002DD86212970B25 /* NoiseReductionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D366C2110B7C055628B3B8E4 /* NoiseReductionProcessor.swift */; };
+		0756C844D78E4D8F36D2EC65 /* FlexConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9705C21C169CA1B77C374A1 /* FlexConnection.swift */; };
+		0AA07DCCD880F92A5A683D2F /* ConnectionSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FF98676AD9DE4094D8EB /* ConnectionSectionView.swift */; };
+		0B33C726C1290AC531F19702 /* SmartLinkAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */; };
+		0C94839B5015141828197FA8 /* WDSPWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 21C0B2928A6FFD928F6EA6F7 /* WDSPWrapper.c */; };
+		0C9A03897BF39F8B89140879 /* calculus.c in Sources */ = {isa = PBXBuildFile; fileRef = B99D76F90AB88A21CFC56969 /* calculus.c */; };
+		0CC830750EE06312A7B817AB /* anr.c in Sources */ = {isa = PBXBuildFile; fileRef = 006B09DB3202E116B778D87D /* anr.c */; };
+		0DDD518B04B5EDEC6251A491 /* AudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A37B65195D2470004E7CED /* AudioDeviceManager.swift */; };
+		1653A6AF255F78AEC28BDD35 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92D8337FDA223E1B3B8EC94 /* ContentView.swift */; };
+		1C7F03C81CF2C2F767399F1B /* AudioSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B759B86052AFA744FDE7D08A /* AudioSectionView.swift */; };
+		1F189A23ADD8EB2E08CF79FF /* AudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80A897420321CB382D19694A /* AudioPipeline.swift */; };
+		2709A69486F9E3F57A245DA2 /* SmartLinkBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9240D4209A157DC09671F5 /* SmartLinkBroker.swift */; };
+		292D3F52DA3D06E4B8649BDF /* RNNoiseProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F8A9FE588AE768C66D2EC /* RNNoiseProcessor.swift */; };
+		299D9667C3C34EBBACEC07E5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D6EFB3BC445FC8DDA57EAB3 /* AudioToolbox.framework */; };
+		2B9A90DEDAEDEFA95933D2C4 /* AudioMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC1C1A412594AB537E3AB8F /* AudioMonitor.swift */; };
+		2C422B63D688683A9F6993E7 /* FlexConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9705C21C169CA1B77C374A1 /* FlexConnection.swift */; };
+		2C56D4C3FAF5F81B9011250A /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 231EB64FB0719E704D6C07AE /* CoreMIDI.framework */; };
+		34986D6990B7CC3F5B076E19 /* WDSPNoiseReductionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABB5694DBA1984F4B133328 /* WDSPNoiseReductionProcessor.swift */; };
+		365E3C7B1EB740E1C0539C48 /* RNNoiseProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F8A9FE588AE768C66D2EC /* RNNoiseProcessor.swift */; };
+		3DCA4DBE5E0B12343EA3C5A6 /* anr.c in Sources */ = {isa = PBXBuildFile; fileRef = 006B09DB3202E116B778D87D /* anr.c */; };
+		3EF24EBA6EEF16EA2F553C8B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92D8337FDA223E1B3B8EC94 /* ContentView.swift */; };
+		4112E6E110B798148B9C3869 /* SmartLinkBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9240D4209A157DC09671F5 /* SmartLinkBroker.swift */; };
+		42FEC9DB248695A8B03C294F /* AudioMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC1C1A412594AB537E3AB8F /* AudioMonitor.swift */; };
+		43760BD2B70C81A6A7BC8972 /* AudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A37B65195D2470004E7CED /* AudioDeviceManager.swift */; };
+		4548A61A6A4D26EC633291C2 /* FlexKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08A6CBC717C5902A3362C19 /* FlexKeychainStore.swift */; };
+		4B47478C77A2EAF0C71AECA0 /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */; };
+		540FF9F340BD574F496DA566 /* SliceSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE770B052624BA7F696A188 /* SliceSectionView.swift */; };
+		57C2938192E12F644B7B2D79 /* FlexSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */; };
+		5E6AC5F4D26039BBC20CEDB1 /* LanAudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */; };
+		64014BCCA491001E6D7B3C8D /* FlexRadioState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */; };
+		6455F2ABFC4E53ADA2F4C21B /* AudioSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B759B86052AFA744FDE7D08A /* AudioSectionView.swift */; };
+		66B52D73F01A82B89A37F5ED /* EqualizerSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B744ABBF55D86F6A2D59DE /* EqualizerSectionView.swift */; };
+		67C51D4FC6B88733472B1847 /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBDED90420D42DFDCD7354 /* AppFileLogger.swift */; };
+		6CF020C8CF2E0B5636D428AC /* AudioOutputPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF310E333E0AC8D01C0097 /* AudioOutputPlayer.swift */; };
+		6FF35DA91A76CE5FDF0DF0DD /* ConnectionSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FF98676AD9DE4094D8EB /* ConnectionSectionView.swift */; };
+		805FFB8D7EB204361E2E565D /* FlexAccessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */; };
+		8129F08C52BCF1817DAD76CE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71AF6B844B9BA40489E500A7 /* AVFoundation.framework */; };
+		83D198F8AA07299BFA43A004 /* FDnoiseIQ.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */; };
+		86C75BA565D5BA04468F56E0 /* zetaHat.c in Sources */ = {isa = PBXBuildFile; fileRef = FD32C348AB7E3DE0556F309B /* zetaHat.c */; };
+		8749CE868CC174A5A2FEE08A /* AudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80A897420321CB382D19694A /* AudioPipeline.swift */; };
+		8941893929610B196F471FBE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71AF6B844B9BA40489E500A7 /* AVFoundation.framework */; };
+		916ADD831C9799077E173DAA /* AudioOutputPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECF310E333E0AC8D01C0097 /* AudioOutputPlayer.swift */; };
+		923CFD112DF02A5DF622CD80 /* FlexSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */; };
+		933509A2D42C36AE2E4F552A /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 231EB64FB0719E704D6C07AE /* CoreMIDI.framework */; };
+		94BA41E1B91E4986EE1C29AF /* FlexKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08A6CBC717C5902A3362C19 /* FlexKeychainStore.swift */; };
+		957AD94F7732D409E28ED1D0 /* FlexProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19293031B680FED82F4B659 /* FlexProtocol.swift */; };
+		9DAF943C57A05FD28F4204FF /* LogsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */; };
+		A1DB4981742BE8FAD88433D4 /* emnr.c in Sources */ = {isa = PBXBuildFile; fileRef = FF4684E28CFB79A4DCE40DC3 /* emnr.c */; };
+		A5D21D6750B09918E8D9BA64 /* NoiseReductionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D366C2110B7C055628B3B8E4 /* NoiseReductionProcessor.swift */; };
+		A6A970D6BBF9534870AF4B46 /* FlexDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748404109724ACEAF4169019 /* FlexDiscovery.swift */; };
+		A9E4B440B7763C4006B05196 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA865E8879333FE032992C4 /* Network.framework */; };
+		ACCA0FB56C81AE27B5D99D67 /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */; };
+		AE7607D30467AD8FF3472260 /* FlexRadioState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */; };
+		B404C0A255AE7894629529E7 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4019ED9DECFF25EC872E05CB /* AppLogger.swift */; };
+		BB395206D794D926A261C578 /* WDSPWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 21C0B2928A6FFD928F6EA6F7 /* WDSPWrapper.c */; };
+		C4429E197BBE9205869B65E2 /* EqualizerSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B744ABBF55D86F6A2D59DE /* EqualizerSectionView.swift */; };
+		C44813D6153B7F8E4FEC427D /* LogsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */; };
+		C47CE1DD39E5A94FF8837B48 /* LanAudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */; };
+		C58E34856E7ACE0C6F6472AC /* FlexDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748404109724ACEAF4169019 /* FlexDiscovery.swift */; };
+		CA3002260B1F55B49D385C8A /* FlexProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19293031B680FED82F4B659 /* FlexProtocol.swift */; };
+		CDA50B50BD77BB1C5F41A4BB /* FDnoiseIQ.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */; };
+		D3FED7E6E61FF4B7F1BA8733 /* SmartLinkAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */; };
+		DD19695664DEF29760B74FB0 /* FlexAccessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */; };
+		E0CAC9A71FEF1F39352E4EEE /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA865E8879333FE032992C4 /* Network.framework */; };
+		E8BE426132CBCB100B0B7BE5 /* zetaHat.c in Sources */ = {isa = PBXBuildFile; fileRef = FD32C348AB7E3DE0556F309B /* zetaHat.c */; };
+		EADE8649C427F6893B69196D /* WDSPNoiseReductionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABB5694DBA1984F4B133328 /* WDSPNoiseReductionProcessor.swift */; };
+		F1EF7C3AC9408C41E7CAAB57 /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBDED90420D42DFDCD7354 /* AppFileLogger.swift */; };
+		F9A5823002371A152FF2F416 /* SliceSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE770B052624BA7F696A188 /* SliceSectionView.swift */; };
+		F9AC90B606F58EACFB7293E9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D6EFB3BC445FC8DDA57EAB3 /* AudioToolbox.framework */; };
+		FD818A8990B81528D9F5EB80 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4019ED9DECFF25EC872E05CB /* AppLogger.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		006B09DB3202E116B778D87D /* anr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = anr.c; sourceTree = "<group>"; };
+		06B744ABBF55D86F6A2D59DE /* EqualizerSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualizerSectionView.swift; sourceTree = "<group>"; };
+		07FBDED90420D42DFDCD7354 /* AppFileLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFileLogger.swift; sourceTree = "<group>"; };
+		1479C2F809021A80ED586DDC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		17F92C61A073A8A84D53AD3D /* FlexAccess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlexAccess.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1ABB5694DBA1984F4B133328 /* WDSPNoiseReductionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WDSPNoiseReductionProcessor.swift; sourceTree = "<group>"; };
+		21C0B2928A6FFD928F6EA6F7 /* WDSPWrapper.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = WDSPWrapper.c; sourceTree = "<group>"; };
+		231EB64FB0719E704D6C07AE /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CoreMIDI.framework; sourceTree = "<group>"; };
+		271C41630FD9AD0E4E482457 /* FlexAccess.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FlexAccess.entitlements; sourceTree = "<group>"; };
+		2EE770B052624BA7F696A188 /* SliceSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliceSectionView.swift; sourceTree = "<group>"; };
+		3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexRadioState.swift; sourceTree = "<group>"; };
+		4019ED9DECFF25EC872E05CB /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = FDnoiseIQ.c; sourceTree = "<group>"; };
+		4F3F8A9FE588AE768C66D2EC /* RNNoiseProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNNoiseProcessor.swift; sourceTree = "<group>"; };
+		50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexAccessApp.swift; sourceTree = "<group>"; };
+		50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartLinkAuth.swift; sourceTree = "<group>"; };
+		6B15E904B1B1D0821E55A327 /* FlexAccess.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FlexAccess.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D6EFB3BC445FC8DDA57EAB3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AudioToolbox.framework; sourceTree = "<group>"; };
+		71AF6B844B9BA40489E500A7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AVFoundation.framework; sourceTree = "<group>"; };
+		748404109724ACEAF4169019 /* FlexDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexDiscovery.swift; sourceTree = "<group>"; };
+		80A897420321CB382D19694A /* AudioPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPipeline.swift; sourceTree = "<group>"; };
+		87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsSectionView.swift; sourceTree = "<group>"; };
+		8ECF310E333E0AC8D01C0097 /* AudioOutputPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioOutputPlayer.swift; sourceTree = "<group>"; };
+		8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexSettings.swift; sourceTree = "<group>"; };
+		9732FF98676AD9DE4094D8EB /* ConnectionSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSectionView.swift; sourceTree = "<group>"; };
+		9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRingBuffer.swift; sourceTree = "<group>"; };
+		9DA865E8879333FE032992C4 /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Network.framework; sourceTree = "<group>"; };
+		A19293031B680FED82F4B659 /* FlexProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexProtocol.swift; sourceTree = "<group>"; };
+		A92D8337FDA223E1B3B8EC94 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B759B86052AFA744FDE7D08A /* AudioSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSectionView.swift; sourceTree = "<group>"; };
+		B88E9237577A094EF51FC4B0 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		B99D76F90AB88A21CFC56969 /* calculus.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = calculus.c; sourceTree = "<group>"; };
+		C2A37B65195D2470004E7CED /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
+		C9705C21C169CA1B77C374A1 /* FlexConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexConnection.swift; sourceTree = "<group>"; };
+		CF9240D4209A157DC09671F5 /* SmartLinkBroker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartLinkBroker.swift; sourceTree = "<group>"; };
+		D08A6CBC717C5902A3362C19 /* FlexKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexKeychainStore.swift; sourceTree = "<group>"; };
+		D366C2110B7C055628B3B8E4 /* NoiseReductionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseReductionProcessor.swift; sourceTree = "<group>"; };
+		D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanAudioPipeline.swift; sourceTree = "<group>"; };
+		DBC1C1A412594AB537E3AB8F /* AudioMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMonitor.swift; sourceTree = "<group>"; };
+		EAE572B2C1FB6A1C1475F2A8 /* ThirdParty */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ThirdParty; sourceTree = SOURCE_ROOT; };
+		FD32C348AB7E3DE0556F309B /* zetaHat.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = zetaHat.c; sourceTree = "<group>"; };
+		FF4684E28CFB79A4DCE40DC3 /* emnr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = emnr.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		10BB499600E388118C3FF103 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				299D9667C3C34EBBACEC07E5 /* AudioToolbox.framework in Frameworks */,
+				2C56D4C3FAF5F81B9011250A /* CoreMIDI.framework in Frameworks */,
+				8129F08C52BCF1817DAD76CE /* AVFoundation.framework in Frameworks */,
+				E0CAC9A71FEF1F39352E4EEE /* Network.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3FF9E87E0F91782AB595C76E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9AC90B606F58EACFB7293E9 /* AudioToolbox.framework in Frameworks */,
+				933509A2D42C36AE2E4F552A /* CoreMIDI.framework in Frameworks */,
+				8941893929610B196F471FBE /* AVFoundation.framework in Frameworks */,
+				A9E4B440B7763C4006B05196 /* Network.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		16509E5A912B3AF8DFD967AA /* wdsp */ = {
+			isa = PBXGroup;
+			children = (
+				006B09DB3202E116B778D87D /* anr.c */,
+				B99D76F90AB88A21CFC56969 /* calculus.c */,
+				FF4684E28CFB79A4DCE40DC3 /* emnr.c */,
+				4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */,
+				21C0B2928A6FFD928F6EA6F7 /* WDSPWrapper.c */,
+				FD32C348AB7E3DE0556F309B /* zetaHat.c */,
+			);
+			path = wdsp;
+			sourceTree = "<group>";
+		};
+		35FBE3A1D739F5C140F72810 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6D6EFB3BC445FC8DDA57EAB3 /* AudioToolbox.framework */,
+				71AF6B844B9BA40489E500A7 /* AVFoundation.framework */,
+				231EB64FB0719E704D6C07AE /* CoreMIDI.framework */,
+				9DA865E8879333FE032992C4 /* Network.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8EF66B22929838F5D7A813C8 /* FlexAccess */ = {
+			isa = PBXGroup;
+			children = (
+				07FBDED90420D42DFDCD7354 /* AppFileLogger.swift */,
+				4019ED9DECFF25EC872E05CB /* AppLogger.swift */,
+				C2A37B65195D2470004E7CED /* AudioDeviceManager.swift */,
+				DBC1C1A412594AB537E3AB8F /* AudioMonitor.swift */,
+				8ECF310E333E0AC8D01C0097 /* AudioOutputPlayer.swift */,
+				80A897420321CB382D19694A /* AudioPipeline.swift */,
+				9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */,
+				B759B86052AFA744FDE7D08A /* AudioSectionView.swift */,
+				B88E9237577A094EF51FC4B0 /* BridgingHeader.h */,
+				9732FF98676AD9DE4094D8EB /* ConnectionSectionView.swift */,
+				A92D8337FDA223E1B3B8EC94 /* ContentView.swift */,
+				06B744ABBF55D86F6A2D59DE /* EqualizerSectionView.swift */,
+				271C41630FD9AD0E4E482457 /* FlexAccess.entitlements */,
+				50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */,
+				C9705C21C169CA1B77C374A1 /* FlexConnection.swift */,
+				748404109724ACEAF4169019 /* FlexDiscovery.swift */,
+				D08A6CBC717C5902A3362C19 /* FlexKeychainStore.swift */,
+				A19293031B680FED82F4B659 /* FlexProtocol.swift */,
+				3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */,
+				8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */,
+				1479C2F809021A80ED586DDC /* Info.plist */,
+				D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */,
+				87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */,
+				D366C2110B7C055628B3B8E4 /* NoiseReductionProcessor.swift */,
+				4F3F8A9FE588AE768C66D2EC /* RNNoiseProcessor.swift */,
+				2EE770B052624BA7F696A188 /* SliceSectionView.swift */,
+				50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */,
+				CF9240D4209A157DC09671F5 /* SmartLinkBroker.swift */,
+				1ABB5694DBA1984F4B133328 /* WDSPNoiseReductionProcessor.swift */,
+			);
+			path = FlexAccess;
+			sourceTree = "<group>";
+		};
+		B8732101ACED2557CB5C5943 = {
+			isa = PBXGroup;
+			children = (
+				EAE572B2C1FB6A1C1475F2A8 /* ThirdParty */,
+				8EF66B22929838F5D7A813C8 /* FlexAccess */,
+				F12BA79515E5FF6C41242C3D /* ThirdParty */,
+				35FBE3A1D739F5C140F72810 /* Frameworks */,
+				E5BAD5EC5358DCE230F1C8E1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E5BAD5EC5358DCE230F1C8E1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6B15E904B1B1D0821E55A327 /* FlexAccess.app */,
+				17F92C61A073A8A84D53AD3D /* FlexAccess.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F12BA79515E5FF6C41242C3D /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				16509E5A912B3AF8DFD967AA /* wdsp */,
+			);
+			path = ThirdParty;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		10D86BBF89499F51B66CD830 /* FlexAccess_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AFA2D76F867FD3CC44799F3C /* Build configuration list for PBXNativeTarget "FlexAccess_macOS" */;
+			buildPhases = (
+				DF83198BAA2B4C85CC35EF53 /* Sources */,
+				3FF9E87E0F91782AB595C76E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FlexAccess_macOS;
+			packageProductDependencies = (
+			);
+			productName = FlexAccess_macOS;
+			productReference = 17F92C61A073A8A84D53AD3D /* FlexAccess.app */;
+			productType = "com.apple.product-type.application";
+		};
+		334734FADF45EA8939E66CE6 /* FlexAccess_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 847546CB58B175F30BADDDD2 /* Build configuration list for PBXNativeTarget "FlexAccess_iOS" */;
+			buildPhases = (
+				75015CA722297226A93DBEC1 /* Sources */,
+				10BB499600E388118C3FF103 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FlexAccess_iOS;
+			packageProductDependencies = (
+			);
+			productName = FlexAccess_iOS;
+			productReference = 6B15E904B1B1D0821E55A327 /* FlexAccess.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6F01560957E3705D331737EB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					10D86BBF89499F51B66CD830 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					334734FADF45EA8939E66CE6 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 5CDAD762A39B13A1303B7EF3 /* Build configuration list for PBXProject "FlexAccess" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B8732101ACED2557CB5C5943;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				334734FADF45EA8939E66CE6 /* FlexAccess_iOS */,
+				10D86BBF89499F51B66CD830 /* FlexAccess_macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		75015CA722297226A93DBEC1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1EF7C3AC9408C41E7CAAB57 /* AppFileLogger.swift in Sources */,
+				B404C0A255AE7894629529E7 /* AppLogger.swift in Sources */,
+				0DDD518B04B5EDEC6251A491 /* AudioDeviceManager.swift in Sources */,
+				2B9A90DEDAEDEFA95933D2C4 /* AudioMonitor.swift in Sources */,
+				6CF020C8CF2E0B5636D428AC /* AudioOutputPlayer.swift in Sources */,
+				1F189A23ADD8EB2E08CF79FF /* AudioPipeline.swift in Sources */,
+				4B47478C77A2EAF0C71AECA0 /* AudioRingBuffer.swift in Sources */,
+				6455F2ABFC4E53ADA2F4C21B /* AudioSectionView.swift in Sources */,
+				6FF35DA91A76CE5FDF0DF0DD /* ConnectionSectionView.swift in Sources */,
+				3EF24EBA6EEF16EA2F553C8B /* ContentView.swift in Sources */,
+				66B52D73F01A82B89A37F5ED /* EqualizerSectionView.swift in Sources */,
+				83D198F8AA07299BFA43A004 /* FDnoiseIQ.c in Sources */,
+				805FFB8D7EB204361E2E565D /* FlexAccessApp.swift in Sources */,
+				2C422B63D688683A9F6993E7 /* FlexConnection.swift in Sources */,
+				C58E34856E7ACE0C6F6472AC /* FlexDiscovery.swift in Sources */,
+				94BA41E1B91E4986EE1C29AF /* FlexKeychainStore.swift in Sources */,
+				957AD94F7732D409E28ED1D0 /* FlexProtocol.swift in Sources */,
+				AE7607D30467AD8FF3472260 /* FlexRadioState.swift in Sources */,
+				57C2938192E12F644B7B2D79 /* FlexSettings.swift in Sources */,
+				C47CE1DD39E5A94FF8837B48 /* LanAudioPipeline.swift in Sources */,
+				C44813D6153B7F8E4FEC427D /* LogsSectionView.swift in Sources */,
+				07096A0A002DD86212970B25 /* NoiseReductionProcessor.swift in Sources */,
+				365E3C7B1EB740E1C0539C48 /* RNNoiseProcessor.swift in Sources */,
+				540FF9F340BD574F496DA566 /* SliceSectionView.swift in Sources */,
+				D3FED7E6E61FF4B7F1BA8733 /* SmartLinkAuth.swift in Sources */,
+				4112E6E110B798148B9C3869 /* SmartLinkBroker.swift in Sources */,
+				EADE8649C427F6893B69196D /* WDSPNoiseReductionProcessor.swift in Sources */,
+				0C94839B5015141828197FA8 /* WDSPWrapper.c in Sources */,
+				0CC830750EE06312A7B817AB /* anr.c in Sources */,
+				0C9A03897BF39F8B89140879 /* calculus.c in Sources */,
+				A1DB4981742BE8FAD88433D4 /* emnr.c in Sources */,
+				86C75BA565D5BA04468F56E0 /* zetaHat.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF83198BAA2B4C85CC35EF53 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				67C51D4FC6B88733472B1847 /* AppFileLogger.swift in Sources */,
+				FD818A8990B81528D9F5EB80 /* AppLogger.swift in Sources */,
+				43760BD2B70C81A6A7BC8972 /* AudioDeviceManager.swift in Sources */,
+				42FEC9DB248695A8B03C294F /* AudioMonitor.swift in Sources */,
+				916ADD831C9799077E173DAA /* AudioOutputPlayer.swift in Sources */,
+				8749CE868CC174A5A2FEE08A /* AudioPipeline.swift in Sources */,
+				ACCA0FB56C81AE27B5D99D67 /* AudioRingBuffer.swift in Sources */,
+				1C7F03C81CF2C2F767399F1B /* AudioSectionView.swift in Sources */,
+				0AA07DCCD880F92A5A683D2F /* ConnectionSectionView.swift in Sources */,
+				1653A6AF255F78AEC28BDD35 /* ContentView.swift in Sources */,
+				C4429E197BBE9205869B65E2 /* EqualizerSectionView.swift in Sources */,
+				CDA50B50BD77BB1C5F41A4BB /* FDnoiseIQ.c in Sources */,
+				DD19695664DEF29760B74FB0 /* FlexAccessApp.swift in Sources */,
+				0756C844D78E4D8F36D2EC65 /* FlexConnection.swift in Sources */,
+				A6A970D6BBF9534870AF4B46 /* FlexDiscovery.swift in Sources */,
+				4548A61A6A4D26EC633291C2 /* FlexKeychainStore.swift in Sources */,
+				CA3002260B1F55B49D385C8A /* FlexProtocol.swift in Sources */,
+				64014BCCA491001E6D7B3C8D /* FlexRadioState.swift in Sources */,
+				923CFD112DF02A5DF622CD80 /* FlexSettings.swift in Sources */,
+				5E6AC5F4D26039BBC20CEDB1 /* LanAudioPipeline.swift in Sources */,
+				9DAF943C57A05FD28F4204FF /* LogsSectionView.swift in Sources */,
+				A5D21D6750B09918E8D9BA64 /* NoiseReductionProcessor.swift in Sources */,
+				292D3F52DA3D06E4B8649BDF /* RNNoiseProcessor.swift in Sources */,
+				F9A5823002371A152FF2F416 /* SliceSectionView.swift in Sources */,
+				0B33C726C1290AC531F19702 /* SmartLinkAuth.swift in Sources */,
+				2709A69486F9E3F57A245DA2 /* SmartLinkBroker.swift in Sources */,
+				34986D6990B7CC3F5B076E19 /* WDSPNoiseReductionProcessor.swift in Sources */,
+				BB395206D794D926A261C578 /* WDSPWrapper.c in Sources */,
+				3DCA4DBE5E0B12343EA3C5A6 /* anr.c in Sources */,
+				036B7C8D16A65B3E564592F7 /* calculus.c in Sources */,
+				06CD45826B2AA9CDF4777267 /* emnr.c in Sources */,
+				E8BE426132CBCB100B0B7BE5 /* zetaHat.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1839881CAE2D98AFFE47975B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FlexAccess/FlexAccess.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RNNOISE_C=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/ThirdParty/wdsp",
+					"$(SRCROOT)/ThirdParty/NR",
+					/opt/homebrew/include,
+				);
+				INFOPLIST_FILE = FlexAccess/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					/opt/homebrew/lib/libfftw3.a,
+					"$(SRCROOT)/ThirdParty/NR/build/rnnoise.a",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.w9fyi.flexaccess;
+				PRODUCT_NAME = FlexAccess;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = FlexAccess/BridgingHeader.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		535A3277ABB1A3D4A37161D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FlexAccess/FlexAccess.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RNNOISE_C=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/ThirdParty/wdsp",
+					"$(SRCROOT)/ThirdParty/NR",
+					/opt/homebrew/include,
+				);
+				INFOPLIST_FILE = FlexAccess/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					/opt/homebrew/lib/libfftw3.a,
+					"$(SRCROOT)/ThirdParty/NR/build/rnnoise.a",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.w9fyi.flexaccess;
+				PRODUCT_NAME = FlexAccess;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = FlexAccess/BridgingHeader.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B6251EBB8539F417538F2F89 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FlexAccess/FlexAccess.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RNNOISE_C=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/ThirdParty/wdsp",
+					"$(SRCROOT)/ThirdParty/NR",
+					/opt/homebrew/include,
+				);
+				INFOPLIST_FILE = FlexAccess/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					/opt/homebrew/lib/libfftw3.a,
+					"$(SRCROOT)/ThirdParty/NR/build/rnnoise.a",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.w9fyi.flexaccess;
+				PRODUCT_NAME = FlexAccess;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = FlexAccess/BridgingHeader.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D0402C68C49A900211E7F8DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FlexAccess/FlexAccess.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RNNOISE_C=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/ThirdParty/wdsp",
+					"$(SRCROOT)/ThirdParty/NR",
+					/opt/homebrew/include,
+				);
+				INFOPLIST_FILE = FlexAccess/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					/opt/homebrew/lib/libfftw3.a,
+					"$(SRCROOT)/ThirdParty/NR/build/rnnoise.a",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.w9fyi.flexaccess;
+				PRODUCT_NAME = FlexAccess;
+				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = FlexAccess/BridgingHeader.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		D3F7C3A74535CB040526CF44 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		ED61F85787EA52463C8608CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5CDAD762A39B13A1303B7EF3 /* Build configuration list for PBXProject "FlexAccess" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D3F7C3A74535CB040526CF44 /* Debug */,
+				ED61F85787EA52463C8608CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		847546CB58B175F30BADDDD2 /* Build configuration list for PBXNativeTarget "FlexAccess_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				535A3277ABB1A3D4A37161D5 /* Debug */,
+				B6251EBB8539F417538F2F89 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AFA2D76F867FD3CC44799F3C /* Build configuration list for PBXNativeTarget "FlexAccess_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1839881CAE2D98AFFE47975B /* Debug */,
+				D0402C68C49A900211E7F8DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6F01560957E3705D331737EB /* Project object */;
+}
