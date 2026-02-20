@@ -90,6 +90,7 @@ final class FlexRadioState: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var pendingWANRadio: DiscoveredRadio? = nil
+    private var pendingWANHandle: String? = nil
 
     // MARK: Init
 
@@ -223,10 +224,22 @@ final class FlexRadioState: ObservableObject {
             return
         }
 
+        // WAN path: attach Opus decoder so VITAReceiver decodes Opus payload instead of float32.
+        if isWAN {
+            if let decoder = OpusDecoder() {
+                receiver.opusDecoder = decoder
+                isOpusPath = true
+            } else {
+                appendLog("Warning: Opus decoder unavailable — WAN audio may be silent")
+                isOpusPath = false
+            }
+        } else {
+            isOpusPath = false
+        }
+
         vitaReceiver    = receiver
         lanAudioPipeline = pipeline
         audioPlayer      = player
-        isOpusPath       = isWAN
         lanAudioError    = nil
 
         // Enable DAX channel 1 on the active slice
@@ -367,11 +380,22 @@ final class FlexRadioState: ObservableObject {
             switch status {
             case .connected:
                 appendLog("Connected — \(isWAN ? "SmartLink/WAN" : "Local LAN")")
-                sendInitialSubscriptions()
+                if isWAN, let wanHandle = pendingWANHandle {
+                    // WAN: send wan validate first, then subscriptions after a short delay
+                    // so the radio has time to process the validation before receiving API commands.
+                    pendingWANHandle = nil
+                    connection.sendWANValidation(wanHandle: wanHandle)
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 200_000_000)
+                        self.sendInitialSubscriptions()
+                    }
+                } else {
+                    sendInitialSubscriptions()
+                }
                 announceAccessibility("Connected to radio")
             case .disconnected:
                 appendLog("Disconnected")
-                stopDAXAudio()
+                stopDAXAudio(sendCommand: false)
                 isTX = false
                 announceAccessibility("Disconnected from radio")
             case .connecting:
@@ -401,12 +425,10 @@ final class FlexRadioState: ObservableObject {
         smartLinkBroker.onWANHandleReady = { [weak self] handle, radio in
             guard let self else { return }
             Task { @MainActor in
-                // WAN handle received — now open the direct TLS connection to the radio
+                // Store the WAN handle. setupConnectionCallbacks will send wan validate
+                // immediately when the H line arrives (before subscriptions).
+                self.pendingWANHandle = handle
                 self.connection.connect(to: radio)
-                // After TCP is established, send WAN validation
-                // Small delay to allow V/H lines to be received first
-                try? await Task.sleep(nanoseconds: 500_000_000)
-                self.connection.sendWANValidation(wanHandle: handle)
             }
         }
 
@@ -421,6 +443,11 @@ final class FlexRadioState: ObservableObject {
     // MARK: Private — subscriptions
 
     private func sendInitialSubscriptions() {
+        // WAN requires registering our UDP endpoint so the radio knows where to send audio.
+        if isWAN {
+            send(FlexProtocol.clientUDPRegister(handle: connection.clientHandle))
+            send(FlexProtocol.clientIP())
+        }
         send(FlexProtocol.subRadio())
         send(FlexProtocol.subSliceAll())
         send(FlexProtocol.subMeterList())

@@ -36,6 +36,7 @@
 		4548A61A6A4D26EC633291C2 /* FlexKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08A6CBC717C5902A3362C19 /* FlexKeychainStore.swift */; };
 		4B47478C77A2EAF0C71AECA0 /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */; };
 		540FF9F340BD574F496DA566 /* SliceSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE770B052624BA7F696A188 /* SliceSectionView.swift */; };
+		54DE4589245C1B30C9097E59 /* OpusDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886B27041E2F6674F9439CFF /* OpusDecoder.swift */; };
 		57C2938192E12F644B7B2D79 /* FlexSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */; };
 		5E6AC5F4D26039BBC20CEDB1 /* LanAudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */; };
 		64014BCCA491001E6D7B3C8D /* FlexRadioState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */; };
@@ -60,6 +61,7 @@
 		A5D21D6750B09918E8D9BA64 /* NoiseReductionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D366C2110B7C055628B3B8E4 /* NoiseReductionProcessor.swift */; };
 		A6A970D6BBF9534870AF4B46 /* FlexDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748404109724ACEAF4169019 /* FlexDiscovery.swift */; };
 		A9E4B440B7763C4006B05196 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA865E8879333FE032992C4 /* Network.framework */; };
+		AAD7EB64C82BCC2D42382A4E /* OpusDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886B27041E2F6674F9439CFF /* OpusDecoder.swift */; };
 		ACCA0FB56C81AE27B5D99D67 /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADFD4928C1416458E35D5BF /* AudioRingBuffer.swift */; };
 		AE7607D30467AD8FF3472260 /* FlexRadioState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */; };
 		B404C0A255AE7894629529E7 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4019ED9DECFF25EC872E05CB /* AppLogger.swift */; };
@@ -107,6 +109,7 @@
 		748404109724ACEAF4169019 /* FlexDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexDiscovery.swift; sourceTree = "<group>"; };
 		80A897420321CB382D19694A /* AudioPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPipeline.swift; sourceTree = "<group>"; };
 		87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsSectionView.swift; sourceTree = "<group>"; };
+		886B27041E2F6674F9439CFF /* OpusDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusDecoder.swift; sourceTree = "<group>"; };
 		8ECF310E333E0AC8D01C0097 /* AudioOutputPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioOutputPlayer.swift; sourceTree = "<group>"; };
 		8F37B9C5CA731E6C6462B4BB /* FlexSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexSettings.swift; sourceTree = "<group>"; };
 		9732FF98676AD9DE4094D8EB /* ConnectionSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSectionView.swift; sourceTree = "<group>"; };
@@ -206,6 +209,7 @@
 				D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */,
 				87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */,
 				D366C2110B7C055628B3B8E4 /* NoiseReductionProcessor.swift */,
+				886B27041E2F6674F9439CFF /* OpusDecoder.swift */,
 				4F3F8A9FE588AE768C66D2EC /* RNNoiseProcessor.swift */,
 				2EE770B052624BA7F696A188 /* SliceSectionView.swift */,
 				50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */,
@@ -349,6 +353,7 @@
 				C47CE1DD39E5A94FF8837B48 /* LanAudioPipeline.swift in Sources */,
 				C44813D6153B7F8E4FEC427D /* LogsSectionView.swift in Sources */,
 				07096A0A002DD86212970B25 /* NoiseReductionProcessor.swift in Sources */,
+				AAD7EB64C82BCC2D42382A4E /* OpusDecoder.swift in Sources */,
 				365E3C7B1EB740E1C0539C48 /* RNNoiseProcessor.swift in Sources */,
 				540FF9F340BD574F496DA566 /* SliceSectionView.swift in Sources */,
 				D3FED7E6E61FF4B7F1BA8733 /* SmartLinkAuth.swift in Sources */,
@@ -389,6 +394,7 @@
 				5E6AC5F4D26039BBC20CEDB1 /* LanAudioPipeline.swift in Sources */,
 				9DAF943C57A05FD28F4204FF /* LogsSectionView.swift in Sources */,
 				A5D21D6750B09918E8D9BA64 /* NoiseReductionProcessor.swift in Sources */,
+				54DE4589245C1B30C9097E59 /* OpusDecoder.swift in Sources */,
 				292D3F52DA3D06E4B8649BDF /* RNNoiseProcessor.swift in Sources */,
 				F9A5823002371A152FF2F416 /* SliceSectionView.swift in Sources */,
 				0B33C726C1290AC531F19702 /* SmartLinkAuth.swift in Sources */,

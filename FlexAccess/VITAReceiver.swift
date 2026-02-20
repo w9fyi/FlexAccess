@@ -43,6 +43,10 @@ final class VITAReceiver {
     /// Updated from the radio's audio_stream status line.
     var expectedStreamID: UInt32?
 
+    /// If non-nil, treat the VITA-49 payload as an Opus packet and decode it.
+    /// Nil (default) → LAN path: payload is float32 stereo big-endian.
+    var opusDecoder: OpusDecoder?
+
     // MARK: Private state
 
     private let queue = DispatchQueue(label: "VITAReceiver.udp", qos: .userInteractive)
@@ -184,23 +188,33 @@ final class VITAReceiver {
         let payloadBytes = totalBytes - hdrBytes - trailerBytes
         guard payloadBytes >= 8 else { return }   // need at least 1 stereo float32 pair
 
-        // Payload: float32 stereo interleaved big-endian (L₀ R₀ L₁ R₁ …)
-        let pairCount = payloadBytes / 8            // each pair = L(4 bytes) + R(4 bytes)
-        onPacket?(streamID, pairCount)
-
         let payload = bytes.advanced(by: hdrBytes)
-        var mono = [Float](repeating: 0, count: pairCount)
-        for i in 0..<pairCount {
-            let l = beFloat(payload, at: i * 8)
-            let r = beFloat(payload, at: i * 8 + 4)
-            mono[i] = (l + r) * 0.5
-        }
 
-        // Heuristic sample rate detection:
-        //   ≤ 160 stereo pairs per packet  → radio is sending at 24 kHz → upsample 2× to 48 kHz
-        //   > 160 stereo pairs per packet  → radio is sending at 48 kHz → pass straight through
-        let out: [Float] = pairCount <= 160 ? upsample2x(mono) : mono
-        if !out.isEmpty { onAudio48kMono?(out) }
+        if let decoder = opusDecoder {
+            // WAN path: payload is one Opus frame (variable-length binary).
+            // OpusDecoder returns 480 float32 samples at 48 kHz.
+            onPacket?(streamID, 1)  // 1 frame = 480 samples
+            if let decoded = decoder.decode(bytes: payload, count: payloadBytes) {
+                onAudio48kMono?(decoded)
+            }
+        } else {
+            // LAN path: payload is float32 stereo interleaved big-endian (L₀ R₀ L₁ R₁ …)
+            let pairCount = payloadBytes / 8    // each pair = L(4 bytes) + R(4 bytes)
+            onPacket?(streamID, pairCount)
+
+            var mono = [Float](repeating: 0, count: pairCount)
+            for i in 0..<pairCount {
+                let l = beFloat(payload, at: i * 8)
+                let r = beFloat(payload, at: i * 8 + 4)
+                mono[i] = (l + r) * 0.5
+            }
+
+            // Heuristic sample rate detection:
+            //   ≤ 160 stereo pairs/packet → radio sending at 24 kHz → upsample 2× to 48 kHz
+            //   > 160 stereo pairs/packet → radio sending at 48 kHz → pass straight through
+            let out: [Float] = pairCount <= 160 ? upsample2x(mono) : mono
+            if !out.isEmpty { onAudio48kMono?(out) }
+        }
     }
 
     // MARK: Private — helpers
