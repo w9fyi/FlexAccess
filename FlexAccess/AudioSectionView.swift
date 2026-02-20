@@ -47,6 +47,15 @@ struct AudioSectionView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+
+                Spacer()
+
+                Button(radio.isDAXRunning ? "Stop" : "Start") {
+                    if radio.isDAXRunning { radio.stopDAXAudio() } else { radio.startDAXAudio() }
+                }
+                .disabled(radio.connectionStatus.lowercased() != "connected")
+                .accessibilityLabel(radio.isDAXRunning ? "Stop DAX audio" : "Start DAX audio")
+                .accessibilityHint("Toggles DAX receive audio from the radio")
             }
 
             HStack(spacing: 12) {
@@ -154,9 +163,9 @@ struct AudioSectionView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
-            Text("Note: DAX receive audio (Phase 2) is not yet implemented. NR will apply once audio streaming is enabled.")
+            Text("Tip: Start DAX in the Audio section to receive audio from the radio. Software NR processes DAX audio before playback.")
                 .font(.footnote)
-                .foregroundStyle(.orange)
+                .foregroundStyle(.secondary)
         }
     }
 }

@@ -59,7 +59,9 @@ final class FlexRadioState: ObservableObject {
     @Published private(set) var audioPacketCount: Int = 0
     @Published private(set) var lanAudioLastPacketAt: Date? = nil
     @Published private(set) var isOpusPath: Bool = false
-    @Published var lanAudioOutputGain: Float = 1.0
+    @Published var lanAudioOutputGain: Float = 1.0 {
+        didSet { audioPlayer?.gain = lanAudioOutputGain }
+    }
     @Published var selectedLanAudioOutputUID: String = ""
     @Published var audioOutputDevices: [AudioDeviceInfo] = []
 
@@ -82,6 +84,7 @@ final class FlexRadioState: ObservableObject {
     private let smartLinkBroker = SmartLinkBroker()
 
     let processorProxy: NoiseReductionProcessorProxy
+    private var vitaReceiver: VITAReceiver?
     private var lanAudioPipeline: LanAudioPipeline?
     private var audioPlayer: AudioOutputPlayer?
 
@@ -161,8 +164,77 @@ final class FlexRadioState: ObservableObject {
     func disconnect() {
         smartLinkBroker.disconnect()
         connection.disconnect()
-        stopDAXAudio()
+        stopDAXAudio(sendCommand: false)   // connection is closing — don't send TCP commands
     }
+
+    // MARK: Public — DAX audio
+
+    func startDAXAudio() {
+        guard connectionStatus.lowercased() == "connected" else { return }
+        stopDAXAudio(sendCommand: true)
+
+        let pipeline = LanAudioPipeline(processor: processorProxy)
+        let player   = AudioOutputPlayer(sampleRate: 48_000)
+        player.gain  = lanAudioOutputGain
+        player.onLog   = { [weak self] msg in Task { @MainActor in self?.appendLog(msg) } }
+        player.onError = { [weak self] msg in Task { @MainActor in self?.lanAudioError = msg } }
+
+        let receiver = VITAReceiver()
+        receiver.onLog   = { [weak self] msg in Task { @MainActor in self?.appendLog(msg) } }
+        receiver.onError = { [weak self] msg in Task { @MainActor in
+            self?.lanAudioError = msg
+            self?.appendError("DAX: \(msg)")
+        }}
+        receiver.onPacket = { [weak self] _, _ in Task { @MainActor in
+            guard let self else { return }
+            self.audioPacketCount += 1
+            self.lanAudioLastPacketAt = Date()
+            if !self.isDAXRunning { self.isDAXRunning = true }
+        }}
+        receiver.onAudio48kMono = { [weak pipeline, weak player] samples in
+            guard let pipeline, let player else { return }
+            pipeline.process48kMono(samples) { processed in
+                player.enqueue48kMono(processed)
+            }
+        }
+
+        // Start audio output
+        #if os(macOS)
+        do {
+            let deviceID: AudioDeviceID? = selectedLanAudioOutputUID.isEmpty
+                ? AudioDeviceManager.defaultOutputDeviceID()
+                : AudioDeviceManager.deviceID(forUID: selectedLanAudioOutputUID)
+            try player.start(outputDeviceID: deviceID)
+        } catch {
+            lanAudioError = error.localizedDescription
+            appendError("Audio player: \(error.localizedDescription)")
+            return
+        }
+        #endif
+
+        // Bind UDP receiver
+        let udpPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
+        do {
+            try receiver.start(port: udpPort)
+        } catch {
+            player.stop()
+            lanAudioError = error.localizedDescription
+            appendError("VITAReceiver: \(error.localizedDescription)")
+            return
+        }
+
+        vitaReceiver    = receiver
+        lanAudioPipeline = pipeline
+        audioPlayer      = player
+        isOpusPath       = isWAN
+        lanAudioError    = nil
+
+        // Enable DAX channel 1 on the active slice
+        send(FlexProtocol.setDAX(index: sliceIndex, channel: 1))
+        appendLog("DAX audio started on UDP \(udpPort)")
+    }
+
+    func stopDAXAudio() { stopDAXAudio(sendCommand: true) }
 
     // MARK: Public — send command
 
@@ -369,7 +441,7 @@ final class FlexRadioState: ObservableObject {
         case .radio:
             applyRadioProps(msg.properties)
         case .audioStream:
-            break // Phase 2
+            applyAudioStreamProps(msg.properties)
         default:
             break
         }
@@ -407,12 +479,31 @@ final class FlexRadioState: ObservableObject {
         if let m = props["model"] { radioModel = m }
     }
 
-    // MARK: Private — DAX audio (Phase 2 stub)
+    // MARK: Private — DAX audio
 
-    private func stopDAXAudio() {
-        isDAXRunning = false
+    private func applyAudioStreamProps(_ props: [String: String]) {
+        // Extract stream ID from the synthetic "_streamid" key we added in parseStatusLine.
+        if let hexStr = props["_streamid"],
+           let streamID = UInt32(hexStr.dropFirst(2), radix: 16) {
+            vitaReceiver?.expectedStreamID = streamID
+            AppFileLogger.shared.log("VITAReceiver: filtering on stream ID \(hexStr)")
+        }
+        if props["in_use"] == "1" { isDAXRunning = true }
+        if props["in_use"] == "0" { isDAXRunning = false }
+    }
+
+    private func stopDAXAudio(sendCommand: Bool) {
+        if sendCommand && isDAXRunning {
+            send(FlexProtocol.setDAX(index: sliceIndex, channel: 0))
+        }
+        vitaReceiver?.stop()
+        vitaReceiver = nil
         audioPlayer?.stop()
+        audioPlayer = nil
         lanAudioPipeline = nil
+        audioPacketCount = 0
+        isDAXRunning = false
+        isOpusPath = false
     }
 
     // MARK: Private — log helpers

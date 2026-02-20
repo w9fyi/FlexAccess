@@ -189,6 +189,11 @@ enum FlexProtocol {
             return FlexStatusMessage(kind: .radio, properties: props)
 
         case "audio_stream", "dax_audio", "audio":
+            // tokens[1] may be the hex stream ID (e.g. "0xC0000001"), not a key=value pair.
+            if tokens.count > 1, tokens[1].hasPrefix("0x") || tokens[1].hasPrefix("0X") {
+                props["_streamid"] = tokens[1]
+                startIndex = 2
+            }
             parseKV(from: tokens, startingAt: startIndex, into: &props)
             return FlexStatusMessage(kind: .audioStream, properties: props)
 

@@ -68,12 +68,14 @@
 		C44813D6153B7F8E4FEC427D /* LogsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87CF2814D0B8F36A39E27FE9 /* LogsSectionView.swift */; };
 		C47CE1DD39E5A94FF8837B48 /* LanAudioPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5102D107A2F91F8D10E071B /* LanAudioPipeline.swift */; };
 		C58E34856E7ACE0C6F6472AC /* FlexDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748404109724ACEAF4169019 /* FlexDiscovery.swift */; };
+		C6831FBE713B5B66EFCD1812 /* VITAReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402410528B09E2DDA6EE2CF6 /* VITAReceiver.swift */; };
 		CA3002260B1F55B49D385C8A /* FlexProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19293031B680FED82F4B659 /* FlexProtocol.swift */; };
 		CDA50B50BD77BB1C5F41A4BB /* FDnoiseIQ.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */; };
 		D3FED7E6E61FF4B7F1BA8733 /* SmartLinkAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */; };
 		DD19695664DEF29760B74FB0 /* FlexAccessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */; };
 		E0CAC9A71FEF1F39352E4EEE /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA865E8879333FE032992C4 /* Network.framework */; };
 		E8BE426132CBCB100B0B7BE5 /* zetaHat.c in Sources */ = {isa = PBXBuildFile; fileRef = FD32C348AB7E3DE0556F309B /* zetaHat.c */; };
+		EA1B9DD451818CD6FAED5200 /* VITAReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402410528B09E2DDA6EE2CF6 /* VITAReceiver.swift */; };
 		EADE8649C427F6893B69196D /* WDSPNoiseReductionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABB5694DBA1984F4B133328 /* WDSPNoiseReductionProcessor.swift */; };
 		F1EF7C3AC9408C41E7CAAB57 /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBDED90420D42DFDCD7354 /* AppFileLogger.swift */; };
 		F9A5823002371A152FF2F416 /* SliceSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE770B052624BA7F696A188 /* SliceSectionView.swift */; };
@@ -94,6 +96,7 @@
 		2EE770B052624BA7F696A188 /* SliceSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliceSectionView.swift; sourceTree = "<group>"; };
 		3CD2FB2B2A62CF9D576E7B7B /* FlexRadioState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexRadioState.swift; sourceTree = "<group>"; };
 		4019ED9DECFF25EC872E05CB /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		402410528B09E2DDA6EE2CF6 /* VITAReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VITAReceiver.swift; sourceTree = "<group>"; };
 		4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = FDnoiseIQ.c; sourceTree = "<group>"; };
 		4F3F8A9FE588AE768C66D2EC /* RNNoiseProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNNoiseProcessor.swift; sourceTree = "<group>"; };
 		50833D56DA3E17D1CAE9748F /* FlexAccessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexAccessApp.swift; sourceTree = "<group>"; };
@@ -207,6 +210,7 @@
 				2EE770B052624BA7F696A188 /* SliceSectionView.swift */,
 				50A51001BF8DF67D4CBC3659 /* SmartLinkAuth.swift */,
 				CF9240D4209A157DC09671F5 /* SmartLinkBroker.swift */,
+				402410528B09E2DDA6EE2CF6 /* VITAReceiver.swift */,
 				1ABB5694DBA1984F4B133328 /* WDSPNoiseReductionProcessor.swift */,
 			);
 			path = FlexAccess;
@@ -349,6 +353,7 @@
 				540FF9F340BD574F496DA566 /* SliceSectionView.swift in Sources */,
 				D3FED7E6E61FF4B7F1BA8733 /* SmartLinkAuth.swift in Sources */,
 				4112E6E110B798148B9C3869 /* SmartLinkBroker.swift in Sources */,
+				C6831FBE713B5B66EFCD1812 /* VITAReceiver.swift in Sources */,
 				EADE8649C427F6893B69196D /* WDSPNoiseReductionProcessor.swift in Sources */,
 				0C94839B5015141828197FA8 /* WDSPWrapper.c in Sources */,
 				0CC830750EE06312A7B817AB /* anr.c in Sources */,
@@ -388,6 +393,7 @@
 				F9A5823002371A152FF2F416 /* SliceSectionView.swift in Sources */,
 				0B33C726C1290AC531F19702 /* SmartLinkAuth.swift in Sources */,
 				2709A69486F9E3F57A245DA2 /* SmartLinkBroker.swift in Sources */,
+				EA1B9DD451818CD6FAED5200 /* VITAReceiver.swift in Sources */,
 				34986D6990B7CC3F5B076E19 /* WDSPNoiseReductionProcessor.swift in Sources */,
 				BB395206D794D926A261C578 /* WDSPWrapper.c in Sources */,
 				3DCA4DBE5E0B12343EA3C5A6 /* anr.c in Sources */,
