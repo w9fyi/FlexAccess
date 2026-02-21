@@ -2,7 +2,7 @@
 //  SliceSectionView.swift
 //  FlexAccess
 //
-//  Controls for the active receive slice: frequency, mode, filter, DSP toggles, PTT.
+//  Controls for the active receive slice: frequency, mode, filter, DSP, antenna, PTT.
 //
 
 import SwiftUI
@@ -11,10 +11,14 @@ struct SliceSectionView: View {
     @ObservedObject var radio: FlexRadioState
 
     @State private var freqMHzString: String = ""
-    @State private var filterLoString: String = ""
-    @State private var filterHiString: String = ""
-    private let filterLoDebounce = Debouncer(delay: 0.25)
-    private let filterHiDebounce = Debouncer(delay: 0.25)
+    @State private var filterLo: Double = 200
+    @State private var filterHi: Double = 2700
+
+    private let filterLoDebounce = Debouncer(delay: 0.15)
+    private let filterHiDebounce = Debouncer(delay: 0.15)
+    private let rfGainDebounce   = Debouncer(delay: 0.15)
+    private let audioLvlDebounce = Debouncer(delay: 0.15)
+    private let agcThreshDebounce = Debouncer(delay: 0.15)
 
     var body: some View {
         ScrollView {
@@ -30,6 +34,8 @@ struct SliceSectionView: View {
                 Divider()
                 dspSection
                 Divider()
+                antennaSection
+                Divider()
                 pttSection
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -37,8 +43,8 @@ struct SliceSectionView: View {
         .padding(16)
         .onAppear { syncFromRadio() }
         .onChange(of: radio.sliceFrequencyHz) { _, _ in syncFreq() }
-        .onChange(of: radio.sliceFilterLo)    { _, _ in filterLoString = String(radio.sliceFilterLo) }
-        .onChange(of: radio.sliceFilterHi)    { _, _ in filterHiString = String(radio.sliceFilterHi) }
+        .onChange(of: radio.sliceFilterLo)    { _, v in filterLo = Double(v) }
+        .onChange(of: radio.sliceFilterHi)    { _, v in filterHi = Double(v) }
     }
 
     // MARK: Frequency
@@ -74,11 +80,9 @@ struct SliceSectionView: View {
 
             HStack(spacing: 8) {
                 ForEach([FlexMode.lsb, .usb, .cw, .am, .fm]) { mode in
-                    Button(mode.label) {
-                        radio.setSliceMode(mode)
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel(mode.label)
+                    Button(mode.label) { radio.setSliceMode(mode) }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel(mode.label)
                 }
             }
 
@@ -98,29 +102,47 @@ struct SliceSectionView: View {
     // MARK: Filter
 
     private var filterSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("RX Filter")
                 .font(.headline)
 
-            HStack(spacing: 12) {
-                Text("Low Cut:")
-                TextField("Hz", text: $filterLoString)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 100)
-                    .accessibilityLabel("Filter low cut in hertz")
-                    .onSubmit { applyFilter() }
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 12) {
+                    Text("Low Cut:")
+                        .frame(width: 72, alignment: .trailing)
+                    Slider(value: $filterLo, in: -6000...6000, step: 25)
+                        .frame(minWidth: 200)
+                        .accessibilityLabel("Filter low cut")
+                        .accessibilityValue("\(Int(filterLo)) Hz")
+                        .onChange(of: filterLo) { _, v in
+                            filterLoDebounce.call {
+                                radio.setFilter(lo: Int(v.rounded()), hi: radio.sliceFilterHi)
+                            }
+                        }
+                    Text("\(Int(filterLo)) Hz")
+                        .font(.system(.body, design: .monospaced))
+                        .frame(width: 72, alignment: .trailing)
+                }
 
-                Text("High Cut:")
-                TextField("Hz", text: $filterHiString)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 100)
-                    .accessibilityLabel("Filter high cut in hertz")
-                    .onSubmit { applyFilter() }
-
-                Button("Set Filter") { applyFilter() }
+                HStack(spacing: 12) {
+                    Text("High Cut:")
+                        .frame(width: 72, alignment: .trailing)
+                    Slider(value: $filterHi, in: -6000...6000, step: 25)
+                        .frame(minWidth: 200)
+                        .accessibilityLabel("Filter high cut")
+                        .accessibilityValue("\(Int(filterHi)) Hz")
+                        .onChange(of: filterHi) { _, v in
+                            filterHiDebounce.call {
+                                radio.setFilter(lo: radio.sliceFilterLo, hi: Int(v.rounded()))
+                            }
+                        }
+                    Text("\(Int(filterHi)) Hz")
+                        .font(.system(.body, design: .monospaced))
+                        .frame(width: 72, alignment: .trailing)
+                }
             }
 
-            Text("Typical SSB: Low=200, High=2700  |  CW: Low=300, High=700")
+            Text("Typical USB: Low 100 Hz, High 2800 Hz  •  CW: Low −500, High 500")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -142,6 +164,7 @@ struct SliceSectionView: View {
                     .accessibilityLabel("Automatic notch filter")
             }
 
+            // AGC mode
             HStack(spacing: 12) {
                 Text("AGC:")
                 Picker("AGC", selection: Binding(
@@ -154,6 +177,100 @@ struct SliceSectionView: View {
                 }
                 .frame(width: 200)
                 .accessibilityLabel("AGC mode")
+            }
+
+            // AGC threshold (hidden when AGC is off)
+            if radio.sliceAGCMode != .off {
+                HStack(spacing: 12) {
+                    Text("AGC Threshold:")
+                        .frame(width: 110, alignment: .trailing)
+                    Slider(
+                        value: Binding(
+                            get: { Double(radio.sliceAGCThreshold) },
+                            set: { v in
+                                let t = Int(v.rounded())
+                                agcThreshDebounce.call { radio.setAGCThreshold(t) }
+                            }
+                        ),
+                        in: 0...100, step: 1
+                    )
+                    .frame(minWidth: 180)
+                    .accessibilityLabel("AGC threshold")
+                    .accessibilityValue("\(radio.sliceAGCThreshold)")
+                    Text("\(radio.sliceAGCThreshold)")
+                        .font(.system(.body, design: .monospaced))
+                        .frame(width: 36, alignment: .trailing)
+                }
+            }
+
+            // RF Gain
+            HStack(spacing: 12) {
+                Text("RF Gain:")
+                    .frame(width: 110, alignment: .trailing)
+                Slider(
+                    value: Binding(
+                        get: { Double(radio.sliceRFGain) },
+                        set: { v in
+                            let g = Int(v.rounded())
+                            rfGainDebounce.call { radio.setRFGain(g) }
+                        }
+                    ),
+                    in: -100...20, step: 1
+                )
+                .frame(minWidth: 180)
+                .accessibilityLabel("RF gain")
+                .accessibilityValue("\(radio.sliceRFGain) dB")
+                Text("\(radio.sliceRFGain) dB")
+                    .font(.system(.body, design: .monospaced))
+                    .frame(width: 56, alignment: .trailing)
+            }
+
+            // Slice audio level (radio's internal DAX audio gain)
+            HStack(spacing: 12) {
+                Text("Audio Level:")
+                    .frame(width: 110, alignment: .trailing)
+                Slider(
+                    value: Binding(
+                        get: { Double(radio.sliceAudioLevel) },
+                        set: { v in
+                            let l = Int(v.rounded())
+                            audioLvlDebounce.call { radio.setAudioLevel(l) }
+                        }
+                    ),
+                    in: 0...100, step: 1
+                )
+                .frame(minWidth: 180)
+                .accessibilityLabel("Slice audio level")
+                .accessibilityValue("\(radio.sliceAudioLevel)")
+                Text("\(radio.sliceAudioLevel)")
+                    .font(.system(.body, design: .monospaced))
+                    .frame(width: 36, alignment: .trailing)
+            }
+            Text("Audio Level controls the radio's internal slice gain before DAX output.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: Antenna
+
+    private var antennaSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Antenna")
+                .font(.headline)
+
+            HStack(spacing: 12) {
+                Text("RX Antenna:")
+                Picker("RX Antenna", selection: Binding(
+                    get: { radio.sliceRxAnt },
+                    set: { radio.setRxAnt($0) }
+                )) {
+                    ForEach(radio.sliceAntList, id: \.self) { ant in
+                        Text(ant).tag(ant)
+                    }
+                }
+                .frame(minWidth: 180)
+                .accessibilityLabel("RX antenna selection")
             }
         }
     }
@@ -186,8 +303,8 @@ struct SliceSectionView: View {
 
     private func syncFromRadio() {
         syncFreq()
-        filterLoString = String(radio.sliceFilterLo)
-        filterHiString = String(radio.sliceFilterHi)
+        filterLo = Double(radio.sliceFilterLo)
+        filterHi = Double(radio.sliceFilterHi)
     }
 
     private func syncFreq() {
@@ -200,12 +317,6 @@ struct SliceSectionView: View {
         let normalized = freqMHzString.replacingOccurrences(of: ",", with: ".")
         guard let mhz = Double(normalized) else { return }
         radio.setSliceFrequency(Int((mhz * 1_000_000).rounded()))
-    }
-
-    private func applyFilter() {
-        let lo = Int(filterLoString) ?? radio.sliceFilterLo
-        let hi = Int(filterHiString) ?? radio.sliceFilterHi
-        radio.setFilter(lo: lo, hi: hi)
     }
 }
 

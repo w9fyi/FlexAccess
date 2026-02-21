@@ -16,8 +16,13 @@
 //    Words N+1–N+2: fractional timestamp (if TSF ≠ 0, 2 words)
 //    Payload: float32 samples, big-endian, stereo interleaved (L, R, L, R …)
 //
+//  Uses a blocking recv() loop on a dedicated Thread — same approach as
+//  FlexDiscovery — because DispatchSourceRead + kqueue proved unreliable for
+//  UDP on macOS 15 when SO_REUSEPORT sockets compete on the same port.
+//
 //  Key lessons applied from KenwoodLanAudio:
-//  - close(fd) synchronously in stop() before DispatchSourceRead.cancel() fires async.
+//  - close(fd) synchronously in stop() — causes recv() to return EBADF
+//    immediately, which exits the thread cleanly.
 //  - Receiver stays alive across TCP reconnects; re-send dax=1 on reconnect.
 //
 
@@ -26,7 +31,7 @@ import Darwin
 
 final class VITAReceiver {
 
-    // MARK: Callbacks — delivered on receiver's background queue
+    // MARK: Callbacks — delivered on the receiver's background thread
 
     var onLog: ((String) -> Void)?
     var onError: ((String) -> Void)?
@@ -49,8 +54,7 @@ final class VITAReceiver {
 
     // MARK: Private state
 
-    private let queue = DispatchQueue(label: "VITAReceiver.udp", qos: .userInteractive)
-    private var readSource: DispatchSourceRead?
+    private var receiveThread: Thread?
     private var fd: Int32 = -1
 
     /// Held between packets for linear-interpolation upsample continuity.
@@ -81,9 +85,7 @@ final class VITAReceiver {
 
         var yes: Int32 = 1
         setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, socklen_t(MemoryLayout<Int32>.size))
-        #if os(iOS)
         setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &yes, socklen_t(MemoryLayout<Int32>.size))
-        #endif
 
         var sin = sockaddr_in()
         sin.sin_len    = UInt8(MemoryLayout<sockaddr_in>.size)
@@ -106,50 +108,83 @@ final class VITAReceiver {
             )
         }
 
-        let flags = fcntl(fd, F_GETFL)
-        fcntl(fd, F_SETFL, flags | O_NONBLOCK)
-
-        let source = DispatchSource.makeReadSource(fileDescriptor: fd, queue: queue)
-        source.setEventHandler { [weak self] in self?.drain() }
-        source.setCancelHandler { [weak self] in
-            guard let self, self.fd >= 0 else { return }
-            Darwin.close(self.fd)
-            self.fd = -1
+        // Use a blocking recv() loop on a dedicated Thread.
+        // This is more reliable than DispatchSourceRead + kqueue on macOS 15.
+        let capturedFd = fd
+        weak var weakSelf = self
+        let t = Thread {
+            var buf = [UInt8](repeating: 0, count: 8192)
+            var rawPacketCount = 0
+            while true {
+                let n = buf.withUnsafeMutableBytes { raw in
+                    recv(capturedFd, raw.baseAddress!, raw.count, 0)
+                }
+                if n > 0 {
+                    rawPacketCount += 1
+                    // Log the first few packets: header word + stream ID so we can see
+                    // what stream IDs the radio is actually sending.
+                    if rawPacketCount <= 5 {
+                        let type4 = buf.count >= 4 ? String(format: "%02X %02X %02X %02X", buf[0], buf[1], buf[2], buf[3]) : "?"
+                        let sid   = buf.count >= 8 ? String(format: "0x%02X%02X%02X%02X", buf[4], buf[5], buf[6], buf[7]) : "?"
+                        weakSelf?.onLog?("VITAReceiver: raw UDP pkt #\(rawPacketCount) len=\(n) hdr=[\(type4)] sid=\(sid)")
+                    }
+                    buf.withUnsafeBytes { raw in
+                        guard let base = raw.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return }
+                        weakSelf?.handlePacket(base, count: n)
+                    }
+                } else if n == 0 {
+                    continue  // empty UDP datagram
+                } else {
+                    let err = errno
+                    if err == EINTR { continue }   // interrupted by signal — retry
+                    weakSelf?.onError?("VITAReceiver recv error \(err): \(String(cString: strerror(err)))")
+                    break   // EBADF (fd closed in stop()) or other fatal error
+                }
+            }
+            weakSelf?.onLog?("VITAReceiver: recv thread exited")
         }
-        readSource = source
-        source.resume()
+        t.name = "com.w9fyi.flexaccess.vita.recv"
+        t.qualityOfService = .userInteractive
+        t.start()
+        receiveThread = t
+
         onLog?("VITAReceiver: listening on UDP \(port)")
     }
 
     // MARK: Stop
 
     func stop() {
-        readSource?.cancel()
-        readSource = nil
-        // Synchronous close before the async cancel handler fires — releases the port immediately.
+        // Closing fd causes the blocking recv() to return EBADF, exiting the thread.
         if fd >= 0 { Darwin.close(fd); fd = -1 }
+        receiveThread = nil
         upsampleCarry = nil
     }
 
-    // MARK: Private — UDP drain
+    // MARK: UDP registration
 
-    private func drain() {
-        var buf = [UInt8](repeating: 0, count: 8192)
-        while true {
-            let n = buf.withUnsafeMutableBytes { raw in
-                recv(fd, raw.baseAddress, raw.count, 0)
-            }
-            if n < 0 {
-                if errno == EWOULDBLOCK || errno == EAGAIN { break }
-                onError?("VITAReceiver recv: \(String(cString: strerror(errno)))")
-                break
-            }
-            if n == 0 { break }
-            buf.withUnsafeBytes { raw in
-                guard let base = raw.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return }
-                handlePacket(base, count: n)
+    /// Send a UDP packet to the radio FROM our listening socket so the radio records
+    /// our source IP:port and routes DAX audio back to us.
+    ///
+    /// The FlexRadio firmware learns the client's UDP endpoint by inspecting the
+    /// source address of any incoming UDP packet. Sending this packet from our
+    /// bound fd (port 4991) ensures the radio replies to port 4991.
+    func sendRegistration(toRadioIP ip: String, radioPort: UInt16 = 4992, handle: String) {
+        guard fd >= 0 else { return }
+        let payload = "client udp_register handle=\(handle)"
+        var dest = sockaddr_in()
+        dest.sin_len    = UInt8(MemoryLayout<sockaddr_in>.size)
+        dest.sin_family = sa_family_t(AF_INET)
+        dest.sin_port   = radioPort.bigEndian
+        dest.sin_addr.s_addr = inet_addr(ip)
+        payload.withCString { cstr in
+            withUnsafePointer(to: &dest) { destPtr in
+                destPtr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sa in
+                    _ = Darwin.sendto(fd, cstr, strlen(cstr), 0, sa,
+                                      socklen_t(MemoryLayout<sockaddr_in>.size))
+                }
             }
         }
+        onLog?("VITAReceiver: sent UDP registration to \(ip):\(radioPort) handle=\(handle)")
     }
 
     // MARK: Private — VITA-49 parser

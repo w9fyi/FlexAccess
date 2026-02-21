@@ -39,7 +39,8 @@ final class FlexConnection {
     private let queue = DispatchQueue(label: "com.w9fyi.flexaccess.tcp", qos: .userInitiated)
     private var receiveBuffer = Data()
     private var seqNumber: Int = 1
-    private var pendingResponses: [Int: (String) -> Void] = [:]
+    // Response handler: (result_hex, message) — result_hex is "00000000" on success.
+    private var pendingResponses: [Int: (String, String) -> Void] = [:]
     private var connectTimeoutTimer: DispatchSourceTimer?
     private var keepaliveTimer: DispatchSourceTimer?
     private var isWAN = false
@@ -105,8 +106,10 @@ final class FlexConnection {
 
     // MARK: Send
 
+    /// Send a command and optionally register a response handler.
+    /// The handler receives (result_hex, message) — result_hex is "00000000" on success.
     @discardableResult
-    func send(_ command: String, response: ((String) -> Void)? = nil) -> Int {
+    func send(_ command: String, response: ((String, String) -> Void)? = nil) -> Int {
         let seq = seqNumber
         seqNumber += 1
         if let response { pendingResponses[seq] = response }
@@ -114,6 +117,12 @@ final class FlexConnection {
         DispatchQueue.main.async { self.onLog?("TX: C\(seq)|\(redacted)") }
         sendRaw("C\(seq)|\(command)")
         return seq
+    }
+
+    /// Register a response handler for a sequence number that was already sent.
+    /// Must be called on the main queue immediately after send() to avoid a race.
+    func onResponse(seq: Int, completion: @escaping (String, String) -> Void) {
+        pendingResponses[seq] = completion
     }
 
     // MARK: Private — teardown (no callbacks)
@@ -135,7 +144,7 @@ final class FlexConnection {
         switch state {
         case .ready:
             stopConnectTimeout()
-            onLog?("TCP ready — waiting for V/H handshake")
+            DispatchQueue.main.async { self.onLog?("TCP ready — waiting for V/H handshake") }
             receiveLoop(conn: conn)
             startKeepalive()
         case .failed(let error):
@@ -211,11 +220,10 @@ final class FlexConnection {
             // Response: R<seq>|<hex_result>|[message]
             let parts = line.dropFirst().split(separator: "|", maxSplits: 2)
             if parts.count >= 2, let seq = Int(parts[0]) {
-                let result = String(parts[1])
+                let result  = String(parts[1])
                 let message = parts.count > 2 ? String(parts[2]) : ""
-                let full = result == "00000000" ? "OK" : "Error \(result): \(message)"
                 if let handler = pendingResponses.removeValue(forKey: seq) {
-                    DispatchQueue.main.async { handler(full) }
+                    DispatchQueue.main.async { handler(result, message) }
                 }
             }
             return

@@ -123,6 +123,22 @@ struct AudioSectionView: View {
                 .accessibilityLabel("Send microphone audio when transmitting")
                 .accessibilityHint("When enabled, holds PTT down to start mic capture and PTT up to stop")
 
+            #if os(macOS)
+            HStack(spacing: 12) {
+                Picker("Mic Input", selection: $radio.selectedLanAudioInputUID) {
+                    Text("System Default").tag("")
+                    ForEach(radio.audioInputDevices) { dev in
+                        Text(dev.name).tag(dev.uid)
+                    }
+                }
+                .frame(minWidth: 320)
+                .accessibilityLabel("Microphone input device")
+
+                Button("Refresh") { radio.refreshAudioDevices() }
+                    .accessibilityHint("Re-scans for audio input devices")
+            }
+            #endif
+
             if radio.isMicTXEnabled {
                 HStack(spacing: 8) {
                     Circle()

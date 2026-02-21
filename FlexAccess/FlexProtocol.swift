@@ -69,6 +69,7 @@ struct FlexStatusMessage {
         case slice(index: Int)
         case eq(type: FlexEQType)
         case audioStream
+        case sliceList        // response to 'slice list' — body contains active slice indices
         case meter
         case panadapter
         case unknown
@@ -83,9 +84,17 @@ enum FlexProtocol {
 
     // MARK: Subscriptions
 
-    static func subSliceAll()   -> String { "sub slice all" }
-    static func subRadio()      -> String { "sub radio" }
-    static func subMeterList()  -> String { "sub meter list" }
+    static func subSliceAll()     -> String { "sub slice all" }
+    static func subRadio()        -> String { "sub radio all" }
+    static func subMeterList()    -> String { "sub meter list" }
+    static func subAudioStream()  -> String { "sub audio_stream all" }
+
+    // MARK: Client registration / info
+
+    /// Register with the radio as an API client. Newer firmware (3.x+) requires this
+    /// before the radio will treat us as a first-class client and push full state.
+    static func clientProgram(_ name: String) -> String { "client program \(name)" }
+    static func sliceList() -> String { "slice list" }
 
     // MARK: Slice commands
 
@@ -102,7 +111,6 @@ enum FlexProtocol {
     }
 
     static func sliceRemove(index: Int) -> String { "slice r \(index)" }
-    static func sliceList()             -> String { "slice list" }
 
     // MARK: PTT
 
@@ -122,7 +130,29 @@ enum FlexProtocol {
 
     // MARK: DAX
 
+    /// Older firmware (1.x–2.x): assign DAX channel on a slice.
     static func setDAX(index: Int, channel: Int) -> String { sliceSet(index: index, key: "dax", value: "\(channel)") }
+
+    /// Newer firmware (3.x+): create a DAX RX stream.
+    /// The radio responds R<seq>|0|<hex_stream_id>  — parse stream ID from that.
+    ///
+    /// port: if non-nil, appended as port=N — tells firmware 3.x+ where to unicast audio.
+    /// Leave nil for firmware 1.x/2.x, which broadcasts audio to 255.255.255.255:4992
+    /// regardless; adding port= causes the radio to switch to unicast instead.
+    static func streamCreateDAXRX(daxChannel: Int, port: UInt16? = nil) -> String {
+        if let port {
+            return "stream create type=dax_rx dax_channel=\(daxChannel) port=\(port)"
+        }
+        return "stream create type=dax_rx dax_channel=\(daxChannel)"
+    }
+
+    /// Newer firmware: create a DAX TX stream (for mic audio).
+    static func streamCreateDAXTX() -> String { "stream create type=dax_tx" }
+
+    /// Newer firmware: remove a stream by hex stream ID (e.g. "0xC0000001").
+    static func streamRemove(streamID: String) -> String { "stream remove \(streamID)" }
+
+    /// Legacy audio stream create (very old firmware).
     static func audioStreamCreate(daxChannel: Int) -> String { "audio stream create \(daxChannel)" }
 
     // MARK: Equalizer
@@ -153,7 +183,11 @@ enum FlexProtocol {
 
     // MARK: Radio
 
-    static func clientUDPRegister(handle: String) -> String { "client udp_register handle=\(handle)" }
+    /// Tell the radio which UDP port to send streaming data to (audio, meters, etc.).
+    /// This is the correct command for all firmware versions; replaces the older
+    /// `client udp_register handle=` which was incorrect.
+    static func clientUDPPort(_ port: UInt16)      -> String { "client udpport \(port)" }
+    static func clientUDPRegister(handle: String)  -> String { "client udp_register handle=\(handle)" }
     static func clientIP()                         -> String { "client ip" }
     static func ping()                             -> String { "ping" }
 
@@ -183,6 +217,12 @@ enum FlexProtocol {
             }
             parseKV(from: tokens, startingAt: startIndex, into: &props)
             return FlexStatusMessage(kind: .slice(index: sliceIndex ?? 0), properties: props)
+
+        case "slice_list":
+            // Body: "slice_list 0 1" or "slice_list" (no slices).
+            // Store the raw body as "indices" for the handler to parse.
+            props["_raw"] = tokens.dropFirst().joined(separator: " ")
+            return FlexStatusMessage(kind: .sliceList, properties: props)
 
         case "eq":
             // eq rxsc mode=1 63hz=0 ...

@@ -39,6 +39,11 @@ final class FlexRadioState: ObservableObject {
     @Published var sliceNBEnabled: Bool = false
     @Published var sliceANFEnabled: Bool = false
     @Published var sliceAGCMode: FlexAGCMode = .med
+    @Published var sliceAGCThreshold: Int = 65   // 0-100; higher = radio attenuates more before AGC kicks in
+    @Published var sliceRFGain: Int = 0           // dB; typically -100 to +20
+    @Published var sliceAudioLevel: Int = 50      // 0-100; radio's DAX audio output level for this slice
+    @Published var sliceRxAnt: String = "ANT1"   // currently selected RX antenna
+    @Published private(set) var sliceAntList: [String] = ["ANT1", "ANT2"]  // from radio ant_list
     @Published private(set) var isTX: Bool = false
 
     // MARK: Equalizer
@@ -71,6 +76,8 @@ final class FlexRadioState: ObservableObject {
     }
     @Published var selectedLanAudioOutputUID: String = ""
     @Published var audioOutputDevices: [AudioDeviceInfo] = []
+    @Published var selectedLanAudioInputUID: String = ""
+    @Published var audioInputDevices: [AudioDeviceInfo] = []
 
     // MARK: Software Noise Reduction
 
@@ -102,6 +109,10 @@ final class FlexRadioState: ObservableObject {
     private var micCapture: FlexMicCapture?
     private var txDAXStreamID: UInt32 = 0x00000001  // updated from radio's dax_tx stream status
     private var currentRadioIP: String = ""         // set on connect; used for mic UDP target
+
+    // Track the stream IDs we created so we can remove them on stop.
+    private var rxDAXStreamIDHex: String? = nil     // e.g. "0xC0000001"
+    private var txDAXStreamIDHex: String? = nil
 
     // MARK: Init
 
@@ -198,12 +209,22 @@ final class FlexRadioState: ObservableObject {
             self?.lanAudioError = msg
             self?.appendError("DAX: \(msg)")
         }}
-        receiver.onPacket = { [weak self] _, _ in Task { @MainActor in
-            guard let self else { return }
-            self.audioPacketCount += 1
-            self.lanAudioLastPacketAt = Date()
-            if !self.isDAXRunning { self.isDAXRunning = true }
-        }}
+        // Batch UI updates: fire MainActor dispatch once per ~100 packets (~0.5 s at 24 kHz)
+        // instead of per-packet to avoid hammering the main run loop at 188 dispatches/sec.
+        var packetBatch = 0
+        receiver.onPacket = { [weak self] _, _ in
+            packetBatch += 1
+            if packetBatch >= 100 {
+                let n = packetBatch
+                packetBatch = 0
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.audioPacketCount += n
+                    self.lanAudioLastPacketAt = Date()
+                    if !self.isDAXRunning { self.isDAXRunning = true }
+                }
+            }
+        }
         receiver.onAudio48kMono = { [weak pipeline, weak player] samples in
             guard let pipeline, let player else { return }
             pipeline.process48kMono(samples) { processed in
@@ -225,7 +246,9 @@ final class FlexRadioState: ObservableObject {
         }
         #endif
 
-        // Bind UDP receiver
+        // Bind UDP receiver on port 4991 (LAN) or WAN UDP port.
+        // The radio sends DAX audio FROM radio:4991 TO our registered port (unicast).
+        // We registered our port with `client udpport` in sendInitialSubscriptions().
         let udpPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
         do {
             try receiver.start(port: udpPort)
@@ -235,6 +258,7 @@ final class FlexRadioState: ObservableObject {
             appendError("VITAReceiver: \(error.localizedDescription)")
             return
         }
+
 
         // WAN path: attach Opus decoder so VITAReceiver decodes Opus payload instead of float32.
         if isWAN {
@@ -253,12 +277,53 @@ final class FlexRadioState: ObservableObject {
         lanAudioPipeline = pipeline
         audioPlayer      = player
         lanAudioError    = nil
+        rxDAXStreamIDHex = nil
+        txDAXStreamIDHex = nil
 
-        // Enable DAX RX channel 1 and DAX TX on the active slice.
-        // DAX TX must be enabled so the radio will accept our VITA-49 mic packets.
+        // Firmware 3.x+ API: create DAX RX and TX streams.
+        // R<seq>|00000000|<hex_stream_id> — parse stream ID from message field.
+        //
+        // Firmware 1.x/2.x API: slice set dax=1 on the active slice.
+        // We send both; the radio ignores whichever doesn't apply.
+        appendLog("DAX audio: UDP \(udpPort) — stream create + slice set dax")
+
+        // New-style stream create (firmware 3.x+) — response handler registered at send time.
+        connection.send(FlexProtocol.streamCreateDAXRX(daxChannel: 1)) { [weak self] result, message in
+            guard let self else { return }
+            AppFileLogger.shared.log("DAX RX stream create response: result=\(result) message=\(message)")
+            guard !result.hasPrefix("5") else { return }
+            // Message is the hex stream ID, e.g. "0xC0000001" (possibly with trailing pipe).
+            let raw = message.trimmingCharacters(in: CharacterSet(charactersIn: "| \t"))
+            guard !raw.isEmpty else { return }
+            let hex = raw.hasPrefix("0x") || raw.hasPrefix("0X") ? raw : "0x" + raw
+            if let sid = UInt32(hex.dropFirst(2), radix: 16) {
+                // Filter on the radio-assigned stream ID so we only process our DAX audio.
+                // Audio is unicast to our registered UDP port, so the stream ID matches.
+                self.vitaReceiver?.expectedStreamID = sid
+                self.rxDAXStreamIDHex = hex
+                self.isDAXRunning = true
+                AppFileLogger.shared.log("DAX RX stream created: \(hex) — stream ID filter enabled")
+                self.appendLog("DAX RX stream: \(hex)")
+            }
+        }
+        connection.send(FlexProtocol.streamCreateDAXTX()) { [weak self] result, message in
+            guard let self else { return }
+            AppFileLogger.shared.log("DAX TX stream create response: result=\(result) message=\(message)")
+            guard !result.hasPrefix("5") else { return }
+            let raw = message.trimmingCharacters(in: CharacterSet(charactersIn: "| \t"))
+            guard !raw.isEmpty else { return }
+            let hex = raw.hasPrefix("0x") || raw.hasPrefix("0X") ? raw : "0x" + raw
+            if let sid = UInt32(hex.dropFirst(2), radix: 16) {
+                self.txDAXStreamID = sid
+                self.txDAXStreamIDHex = hex
+                AppFileLogger.shared.log("DAX TX stream created: \(hex)")
+                self.appendLog("DAX TX stream: \(hex)")
+            }
+        }
+        // Old-style RX slice assignment (firmware 1.x/2.x).
+        // Do NOT send dax_tx=1 — on firmware 3.x+ that resets the RX dax assignment.
+        // TX audio is handled by the dax_tx stream created above.
         send(FlexProtocol.setDAX(index: sliceIndex, channel: 1))
-        send(FlexProtocol.setDAXTX(index: sliceIndex, enabled: true))
-        appendLog("DAX audio started on UDP \(udpPort)")
     }
 
     func stopDAXAudio() { stopDAXAudio(sendCommand: true) }
@@ -307,6 +372,26 @@ final class FlexRadioState: ObservableObject {
     func setAGC(_ mode: FlexAGCMode) {
         sliceAGCMode = mode
         send(FlexProtocol.setAGC(index: sliceIndex, mode: mode))
+    }
+
+    func setAGCThreshold(_ level: Int) {
+        sliceAGCThreshold = level
+        send(FlexProtocol.sliceSet(index: sliceIndex, key: "agc_threshold", value: "\(level)"))
+    }
+
+    func setRFGain(_ db: Int) {
+        sliceRFGain = db
+        send(FlexProtocol.sliceSet(index: sliceIndex, key: "rfgain", value: "\(db)"))
+    }
+
+    func setAudioLevel(_ level: Int) {
+        sliceAudioLevel = level
+        send(FlexProtocol.sliceSet(index: sliceIndex, key: "audio_level", value: "\(level)"))
+    }
+
+    func setRxAnt(_ ant: String) {
+        sliceRxAnt = ant
+        send(FlexProtocol.sliceSet(index: sliceIndex, key: "rxant", value: ant))
     }
 
     func setPTT(down: Bool) {
@@ -367,6 +452,7 @@ final class FlexRadioState: ObservableObject {
     func refreshAudioDevices() {
         #if os(macOS)
         audioOutputDevices = AudioDeviceManager.outputDevices()
+        audioInputDevices  = AudioDeviceManager.inputDevices()
         #endif
     }
 
@@ -463,14 +549,51 @@ final class FlexRadioState: ObservableObject {
     // MARK: Private — subscriptions
 
     private func sendInitialSubscriptions() {
-        // WAN requires registering our UDP endpoint so the radio knows where to send audio.
+        // Register as a named API client — required by firmware 3.x+ so the radio
+        // treats us as a first-class client and pushes full slice/stream state.
+        send(FlexProtocol.clientProgram("FlexAccess"))
+
+        // Tell the radio which UDP port to send streaming data (DAX audio, meters, etc.) to.
+        // This is the correct SmartSDR API command for all firmware versions.
+        // The radio sends audio FROM radio:4991 TO our registered port (unicast).
+        let udpListenPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
+        send(FlexProtocol.clientUDPPort(udpListenPort))
         if isWAN {
-            send(FlexProtocol.clientUDPRegister(handle: connection.clientHandle))
             send(FlexProtocol.clientIP())
         }
         send(FlexProtocol.subRadio())
         send(FlexProtocol.subSliceAll())
         send(FlexProtocol.subMeterList())
+        send(FlexProtocol.subAudioStream())
+        // Ask radio for its current slice list so we know which indices exist.
+        // Firmware 3.x+ returns indices in the R-line message; 1.x/2.x returns an S-line.
+        connection.send(FlexProtocol.sliceList()) { [weak self] result, message in
+            guard let self else { return }
+            AppFileLogger.shared.log("slice list response: result=\(result) message=\(message)")
+            // Success result is "0"; errors start with "5"
+            guard !result.hasPrefix("5") else { return }
+            // Message may be "0 1 3 4" or "0 1 3 4|" — strip trailing pipe and parse.
+            let clean = message.trimmingCharacters(in: CharacterSet(charactersIn: "| \t"))
+            let indices = clean.split(separator: " ").compactMap { Int($0) }
+            AppFileLogger.shared.log("Active slice indices from R-line: \(indices)")
+            if let first = indices.first {
+                self.sliceIndex = first
+                self.appendLog("Active slice: \(first)")
+            } else {
+                // No active slices — create one so DAX will work.
+                // slice create returns the new slice index in the R-line message.
+                self.appendLog("No active slices — creating slice on 14.225 MHz USB")
+                self.connection.send(FlexProtocol.sliceCreate(freqMHz: 14.225, ant: "ANT1", mode: .usb)) { [weak self] res, msg in
+                    guard let self, !res.hasPrefix("5") else { return }
+                    let raw = msg.trimmingCharacters(in: CharacterSet(charactersIn: "| \t"))
+                    if let idx = Int(raw) {
+                        self.sliceIndex = idx
+                        self.appendLog("Created slice \(idx) — radio ready")
+                        AppFileLogger.shared.log("Slice created: index=\(idx)")
+                    }
+                }
+            }
+        }
         // Query EQ state
         send("eq rxsc info")
         send("eq txsc info")
@@ -489,6 +612,13 @@ final class FlexRadioState: ObservableObject {
             applyRadioProps(msg.properties)
         case .audioStream:
             applyAudioStreamProps(msg.properties)
+        case .sliceList:
+            // Radio responded to 'slice list' — body is "slice_list X Y Z" where X Y Z are indices.
+            // If the radio has slices, update our active slice index to the first one found.
+            applySliceListProps(body)
+        case .unknown:
+            // Log unrecognised lines so we can diagnose what the radio is sending.
+            AppFileLogger.shared.log("FlexRadioState: unhandled status — \(body.prefix(120))")
         default:
             break
         }
@@ -507,6 +637,13 @@ final class FlexRadioState: ObservableObject {
         if let v = props["nb"]  { sliceNBEnabled  = v == "1" }
         if let v = props["anf"] { sliceANFEnabled = v == "1" }
         if let v = props["agc_mode"], let agc = FlexAGCMode(rawValue: v) { sliceAGCMode = agc }
+        if let v = props["agc_threshold"], let t = Int(v) { sliceAGCThreshold = t }
+        if let v = props["rfgain"],     let g = Int(v)   { sliceRFGain = g }
+        if let v = props["audio_level"], let l = Int(v)  { sliceAudioLevel = l }
+        if let v = props["rxant"], !v.isEmpty            { sliceRxAnt = v }
+        if let v = props["ant_list"], !v.isEmpty {
+            sliceAntList = v.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+        }
         if let v = props["tx"] { isTX = v == "1" }
     }
 
@@ -524,6 +661,24 @@ final class FlexRadioState: ObservableObject {
 
     private func applyRadioProps(_ props: [String: String]) {
         if let m = props["model"] { radioModel = m }
+    }
+
+    private func applySliceListProps(_ body: String) {
+        // body looks like "slice_list 0 1" or from an S-line after slice list command.
+        // Parse the indices and update sliceIndex to the first found.
+        let tokens = body.split(separator: " ").map(String.init)
+        // First token is "slice_list"; rest are the indices.
+        let start = tokens.first?.lowercased() == "slice_list" ? 1 : 0
+        let indices = tokens.dropFirst(start).compactMap { Int($0) }
+        AppFileLogger.shared.log("FlexRadioState: slice list → indices: \(indices)")
+        if let first = indices.first {
+            sliceIndex = first
+            appendLog("Active slice index: \(first)")
+        } else {
+            // No slices — create one so we can use the radio.
+            appendLog("No active slices found — creating slice on 14.225 MHz USB")
+            send(FlexProtocol.sliceCreate(freqMHz: 14.225, ant: "ANT1", mode: .usb))
+        }
     }
 
     // MARK: Private — DAX audio
@@ -548,9 +703,14 @@ final class FlexRadioState: ObservableObject {
 
     private func stopDAXAudio(sendCommand: Bool) {
         if sendCommand && isDAXRunning {
+            // New-style: remove streams (firmware 3.x+)
+            if let hex = rxDAXStreamIDHex { send(FlexProtocol.streamRemove(streamID: hex)) }
+            if let hex = txDAXStreamIDHex { send(FlexProtocol.streamRemove(streamID: hex)) }
+            // Old-style: unassign RX DAX from slice (firmware 1.x/2.x)
             send(FlexProtocol.setDAX(index: sliceIndex, channel: 0))
-            send(FlexProtocol.setDAXTX(index: sliceIndex, enabled: false))
         }
+        rxDAXStreamIDHex = nil
+        txDAXStreamIDHex = nil
         stopMicCapture()
         vitaReceiver?.stop()
         vitaReceiver = nil
@@ -572,11 +732,21 @@ final class FlexRadioState: ObservableObject {
         stopMicCapture()
 
         let udpPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
+        #if os(macOS)
+        let inputDeviceID: UInt32? = selectedLanAudioInputUID.isEmpty
+            ? AudioDeviceManager.defaultInputDeviceID()
+            : AudioDeviceManager.deviceID(forUID: selectedLanAudioInputUID)
+        #endif
         let capture = FlexMicCapture()
         capture.onLog   = { [weak self] msg in Task { @MainActor in self?.appendLog(msg) } }
         capture.onError = { [weak self] msg in Task { @MainActor in self?.appendError("Mic: \(msg)") } }
         do {
+            #if os(macOS)
+            try capture.start(radioIP: currentRadioIP, port: udpPort, streamID: txDAXStreamID,
+                              inputDeviceID: inputDeviceID)
+            #else
             try capture.start(radioIP: currentRadioIP, port: udpPort, streamID: txDAXStreamID)
+            #endif
             micCapture = capture
             isMicActive = true
         } catch {

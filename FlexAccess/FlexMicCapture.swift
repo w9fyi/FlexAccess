@@ -30,6 +30,10 @@
 import Foundation
 import AVFoundation
 import Darwin
+#if os(macOS)
+import CoreAudio
+import AudioToolbox
+#endif
 
 final class FlexMicCapture {
 
@@ -78,7 +82,10 @@ final class FlexMicCapture {
     ///   - radioIP: IP address of the FlexRadio (IPv4 string).
     ///   - port: UDP port to send to (4991 on LAN, publicUdpPort on WAN).
     ///   - streamID: VITA-49 stream ID the radio expects for DAX TX audio.
-    func start(radioIP: String, port: UInt16 = 4991, streamID: UInt32) throws {
+    ///   - inputDeviceID: macOS CoreAudio device ID for the mic input (UInt32). Nil = system default.
+    ///     Ignored on iOS — use AVAudioSession to select the input there.
+    func start(radioIP: String, port: UInt16 = 4991, streamID: UInt32,
+               inputDeviceID: UInt32? = nil) throws {
         stop()
 
         currentStreamID = streamID
@@ -114,6 +121,24 @@ final class FlexMicCapture {
         // --- AVAudioEngine ---
         let e = AVAudioEngine()
         let inputNode = e.inputNode
+
+        // On macOS, select the CoreAudio input device before querying the hardware format.
+        // Must be done after accessing inputNode (which instantiates the AUHAL unit).
+        // AudioDeviceID is a typealias for UInt32, so no cast is needed.
+        #if os(macOS)
+        if let devID = inputDeviceID {
+            var selectedID = devID
+            AudioUnitSetProperty(
+                inputNode.audioUnit!,
+                kAudioOutputUnitProperty_CurrentDevice,
+                kAudioUnitScope_Global,
+                0,
+                &selectedID,
+                UInt32(MemoryLayout<UInt32>.size)
+            )
+        }
+        #endif
+
         let hwFormat  = inputNode.outputFormat(forBus: 0)
 
         guard let outFmt = AVAudioFormat(
