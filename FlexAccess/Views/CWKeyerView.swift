@@ -26,8 +26,7 @@ struct CWKeyerView: View {
                     Text("Connect to a radio to use CW.")
                         .foregroundStyle(.secondary)
                         .padding()
-                    return
-                }
+                } else {
 
                 // MARK: Keyer settings
                 GroupBox("Keyer Settings") {
@@ -98,7 +97,7 @@ struct CWKeyerView: View {
                         ForEach(keyer.macros.indices, id: \.self) { i in
                             HStack {
                                 Button(keyer.macros[i]) {
-                                    keyer.sendMacro(at: i)
+                                    keyer.send(keyer.macros[i])
                                 }
                                 .buttonStyle(.bordered)
                                 .accessibilityLabel("Macro \(i + 1): \(keyer.macros[i])")
@@ -108,7 +107,7 @@ struct CWKeyerView: View {
                         Button("Edit Macros…") { showMacroEditor = true }
                             .font(.caption)
                             .sheet(isPresented: $showMacroEditor) {
-                                MacroEditorSheet(macros: $keyer.macros)
+                                MacroEditorSheet(macros: Bindable(keyer).macros)
                             }
                     }
                     .padding(4)
@@ -147,6 +146,7 @@ struct CWKeyerView: View {
                 } label: {
                     Text("Decoded Receive Text")
                 }
+                } // end else: connected
             }
             .padding()
         }

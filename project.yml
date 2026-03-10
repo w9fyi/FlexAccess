@@ -98,6 +98,7 @@ targets:
       - path: FlexAccess/CW/MorseTable.swift
       - path: FlexAccess/CW/CWDecoder.swift
       - path: FlexAccess/Panadapter/FFTReceiver.swift
+      - path: FlexAccess/MIDI/MIDIMapping.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.w9fyi.flexaccess.tests

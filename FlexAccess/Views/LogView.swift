@@ -148,7 +148,9 @@ private struct AddQSOSheet: View {
                 Section("Contact") {
                     LabeledContent("Callsign") {
                         TextField("Required", text: $callsign)
+                            #if os(iOS)
                             .textInputAutocapitalization(.characters)
+                            #endif
                             .accessibilityLabel("Callsign")
                     }
                     LabeledContent("RST Sent") {

@@ -74,6 +74,12 @@ struct SettingsView: View {
                     .accessibilityElement(children: .combine)
                 }
 
+                // MIDI
+                GroupBox("MIDI Controller") {
+                    MIDISettingsView(radio: radio)
+                        .padding(4)
+                }
+
                 // Log
                 GroupBox("Connection Log") {
                     VStack(alignment: .leading, spacing: 2) {

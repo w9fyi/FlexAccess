@@ -91,6 +91,10 @@ final class Radio {
     let cwKeyer   = CWKeyer()
     let cwDecoder = CWDecoder()
 
+    // MARK: MIDI
+
+    let midiEngine = MIDIEngine()
+
     // MARK: Meters
 
     private(set) var meters: [RadioMeter] = []
@@ -128,6 +132,7 @@ final class Radio {
         setupConnectionCallbacks()
         setupSmartLinkBroker()
         setupCWKeyer()
+        setupMIDIEngine()
     }
 
     private func setupCWKeyer() {
@@ -136,6 +141,56 @@ final class Radio {
         // Keep decoder in sync with keyer defaults
         cwDecoder.targetFreq = Double(cwKeyer.pitch)
         cwDecoder.wpm        = cwKeyer.speed
+    }
+
+    private func setupMIDIEngine() {
+        midiEngine.onAction = { [weak self] action in
+            guard let self else { return }
+            self.executeMIDIAction(action)
+        }
+    }
+
+    private func executeMIDIAction(_ action: MIDIAction) {
+        let idx = activeSliceIndex
+        switch action {
+        case .tuneUp(let hz):
+            guard let slice = activeSlice else { return }
+            tune(sliceIndex: idx, hz: slice.frequencyHz + hz)
+        case .tuneDown(let hz):
+            guard let slice = activeSlice else { return }
+            tune(sliceIndex: idx, hz: Swift.max(0, slice.frequencyHz - hz))
+        case .pttToggle:
+            setPTT(down: !isTX)
+        case .cwMacro(let index):
+            guard index >= 0 && index < cwKeyer.macros.count else { return }
+            cwKeyer.send(cwKeyer.macros[index])
+        case .setMode(let mode):
+            setMode(sliceIndex: idx, mode: mode)
+        case .nrToggle:
+            guard let slice = activeSlice else { return }
+            setNR(sliceIndex: idx, enabled: !slice.nrEnabled)
+        case .bandUp:
+            guard let slice = activeSlice else { return }
+            let sorted = FrequencyMemory.defaults.sorted { $0.frequencyHz < $1.frequencyHz }
+            if let next = sorted.first(where: { $0.frequencyHz > slice.frequencyHz }) {
+                tune(sliceIndex: idx, hz: next.frequencyHz)
+                setMode(sliceIndex: idx, mode: next.mode)
+                announce("Band up — \(next.band)")
+            }
+        case .bandDown:
+            guard let slice = activeSlice else { return }
+            let sorted = FrequencyMemory.defaults.sorted { $0.frequencyHz > $1.frequencyHz }
+            if let prev = sorted.first(where: { $0.frequencyHz < slice.frequencyHz }) {
+                tune(sliceIndex: idx, hz: prev.frequencyHz)
+                setMode(sliceIndex: idx, mode: prev.mode)
+                announce("Band down — \(prev.band)")
+            }
+        case .memoryTune(let id):
+            if let mem = FrequencyMemory.defaults.first(where: { $0.id == id }) {
+                tune(sliceIndex: idx, hz: mem.frequencyHz)
+                setMode(sliceIndex: idx, mode: mem.mode)
+            }
+        }
     }
 
     // MARK: Connect / Disconnect
