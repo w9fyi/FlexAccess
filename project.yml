@@ -28,7 +28,7 @@ targets:
       - path: ThirdParty
         buildPhase: none
         type: folder
-      # WDSP C sources — compiled directly (same as Kenwood project)
+      # WDSP C sources — macOS only (require libfftw3 from Homebrew)
       - path: ThirdParty/wdsp/emnr.c
         buildPhase: sources
       - path: ThirdParty/wdsp/anr.c
@@ -49,7 +49,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.w9fyi.flexaccess
         INFOPLIST_FILE: FlexAccess/Info.plist
         SWIFT_OBJC_BRIDGING_HEADER: FlexAccess/BridgingHeader.h
-        OTHER_LDFLAGS:
+        OTHER_LDFLAGS: "-ObjC"
+        "OTHER_LDFLAGS[sdk=macosx*]":
           - "-ObjC"
           - "-lc++"
           - "/opt/homebrew/lib/libfftw3.a"
@@ -57,12 +58,31 @@ targets:
         HEADER_SEARCH_PATHS:
           - "$(SRCROOT)/ThirdParty/wdsp"
           - "$(SRCROOT)/ThirdParty/NR"
+        "HEADER_SEARCH_PATHS[sdk=macosx*]":
+          - "$(SRCROOT)/ThirdParty/wdsp"
+          - "$(SRCROOT)/ThirdParty/NR"
           - "/opt/homebrew/include"
         GCC_PREPROCESSOR_DEFINITIONS:
+          - "$(inherited)"
+        "GCC_PREPROCESSOR_DEFINITIONS[sdk=macosx*]":
           - "RNNOISE_C=1"
           - "$(inherited)"
         MACOSX_DEPLOYMENT_TARGET: "14.0"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        "EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]":
+          - "emnr.c"
+          - "anr.c"
+          - "calculus.c"
+          - "WDSPWrapper.c"
+          - "zetaHat.c"
+          - "FDnoiseIQ.c"
+        "EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]":
+          - "emnr.c"
+          - "anr.c"
+          - "calculus.c"
+          - "WDSPWrapper.c"
+          - "zetaHat.c"
+          - "FDnoiseIQ.c"
       configs:
         Release:
           SWIFT_OPTIMIZATION_LEVEL: "-O"

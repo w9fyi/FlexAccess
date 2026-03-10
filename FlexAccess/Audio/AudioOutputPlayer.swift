@@ -26,14 +26,23 @@ final class AudioOutputPlayer {
 
     init(sampleRate: Double = 48_000) { self.sampleRate = sampleRate }
 
+    #if os(macOS)
     func start(outputDeviceID: AudioDeviceID? = nil) throws {
         stop()
         let devID: AudioDeviceID
         if let id = outputDeviceID { devID = id }
         else if let id = AudioDeviceManager.defaultOutputDeviceID() { devID = id }
         else { throw PlayerError.noDefaultOutput }
+        try startUnit(try makeOutputUnit(deviceID: devID))
+    }
+    #else
+    func start() throws {
+        stop()
+        try startUnit(try makeOutputUnit())
+    }
+    #endif
 
-        let u = try makeOutputUnit(deviceID: devID)
+    private func startUnit(_ u: AudioUnit) throws {
         var status = AudioUnitInitialize(u)
         guard status == noErr else { throw PlayerError.audioUnitError(status, "AudioUnitInitialize") }
         status = AudioOutputUnitStart(u)
@@ -60,10 +69,27 @@ final class AudioOutputPlayer {
         }
     }
 
+    #if os(macOS)
     private func makeOutputUnit(deviceID: AudioDeviceID) throws -> AudioUnit {
+        let u = try makeBaseUnit(subType: kAudioUnitSubType_HALOutput)
+        var dev = deviceID
+        let status = AudioUnitSetProperty(u, kAudioOutputUnitProperty_CurrentDevice,
+                                          kAudioUnitScope_Global, 0,
+                                          &dev, UInt32(MemoryLayout<AudioDeviceID>.size))
+        guard status == noErr else { throw PlayerError.audioUnitError(status, "Set device") }
+        return try attachStreamFormatAndCallback(u)
+    }
+    #else
+    private func makeOutputUnit() throws -> AudioUnit {
+        let u = try makeBaseUnit(subType: kAudioUnitSubType_RemoteIO)
+        return try attachStreamFormatAndCallback(u)
+    }
+    #endif
+
+    private func makeBaseUnit(subType: OSType) throws -> AudioUnit {
         var desc = AudioComponentDescription(
             componentType: kAudioUnitType_Output,
-            componentSubType: kAudioUnitSubType_HALOutput,
+            componentSubType: subType,
             componentManufacturer: kAudioUnitManufacturer_Apple,
             componentFlags: 0, componentFlagsMask: 0)
         guard let comp = AudioComponentFindNext(nil, &desc) else {
@@ -78,15 +104,13 @@ final class AudioOutputPlayer {
         guard status == noErr else { throw PlayerError.audioUnitError(status, "EnableIO output") }
         status = AudioUnitSetProperty(u, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input,  1, &zero, 4)
         guard status == noErr else { throw PlayerError.audioUnitError(status, "Disable input") }
+        return u
+    }
 
-        var dev = deviceID
-        status = AudioUnitSetProperty(u, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0,
-                                      &dev, UInt32(MemoryLayout<AudioDeviceID>.size))
-        guard status == noErr else { throw PlayerError.audioUnitError(status, "Set device") }
-
+    private func attachStreamFormatAndCallback(_ u: AudioUnit) throws -> AudioUnit {
         var asbd = makeASBD()
-        status = AudioUnitSetProperty(u, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0,
-                                      &asbd, UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
+        var status = AudioUnitSetProperty(u, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0,
+                                          &asbd, UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
         guard status == noErr else { throw PlayerError.audioUnitError(status, "Set stream format") }
 
         var cb = AURenderCallbackStruct(

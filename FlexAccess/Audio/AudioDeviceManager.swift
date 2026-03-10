@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import CoreAudio
 
@@ -98,3 +99,28 @@ enum AudioDeviceManager {
         return AudioObjectGetPropertyData(id, &addr, 0, nil, &size, &value) == noErr ? value : nil
     }
 }
+
+#else
+
+// iOS stub — CoreAudio HAL is macOS-only; no device enumeration on iOS.
+import Foundation
+
+struct AudioDeviceInfo: Identifiable, Hashable {
+    let id: String
+    let uid: String
+    let name: String
+    let nominalSampleRate: Double
+    let inputChannelCount: UInt32
+    let outputChannelCount: UInt32
+    var displayName: String { "\(name) (\(Int(nominalSampleRate)) Hz)" }
+}
+
+enum AudioDeviceManager {
+    static func inputDevices()  -> [AudioDeviceInfo] { [] }
+    static func outputDevices() -> [AudioDeviceInfo] { [] }
+    static func defaultInputDeviceID()  -> String? { nil }
+    static func defaultOutputDeviceID() -> String? { nil }
+    static func deviceID(forUID uid: String) -> String? { nil }
+}
+
+#endif

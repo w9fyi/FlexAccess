@@ -2,6 +2,8 @@ import Foundation
 
 enum WDSPMode { case emnr, anr }
 
+#if os(macOS)
+
 final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
     private var emnrCtx: OpaquePointer?
     private var anrCtx:  OpaquePointer?
@@ -46,3 +48,15 @@ final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
         }
     }
 }
+
+#else
+
+// iOS stub — WDSP requires libfftw3 which is macOS-only.
+final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
+    var isAvailable: Bool { false }
+    var isEnabled: Bool = false
+    init?(mode: WDSPMode = .emnr, sampleRate: Int32 = 48000) { return nil }
+    func processFrame48kMonoInPlace(_ frame: inout [Float]) {}
+}
+
+#endif
