@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - Enumerations
 
-enum FlexMode: String, CaseIterable, Identifiable {
+enum FlexMode: String, CaseIterable, Identifiable, Codable {
     case lsb = "LSB", usb = "USB", cw = "CW", cwl = "CWL"
     case am = "AM", sam = "SAM", fm = "FM", nfm = "NFM"
     case digu = "DIGU", digl = "DIGL", rtty = "RTTY"
@@ -100,10 +100,46 @@ enum FlexProtocol {
     static func setDAX(index: Int, channel: Int)          -> String { sliceSet(index: index, key: "dax",         value: "\(channel)") }
     static func setDAXTX(index: Int, enabled: Bool)       -> String { sliceSet(index: index, key: "dax_tx",      value: enabled ? "1" : "0") }
 
+    // MARK: Slice — RIT / XIT
+
+    static func setRIT(index: Int, enabled: Bool)         -> String { sliceSet(index: index, key: "rit_on",      value: enabled ? "1" : "0") }
+    static func setRITOffset(index: Int, hz: Int)         -> String { sliceSet(index: index, key: "rit_freq",    value: "\(hz)") }
+    static func setXIT(index: Int, enabled: Bool)         -> String { sliceSet(index: index, key: "xit_on",      value: enabled ? "1" : "0") }
+    static func setXITOffset(index: Int, hz: Int)         -> String { sliceSet(index: index, key: "xit_freq",    value: "\(hz)") }
+
+    // MARK: Slice — Squelch
+
+    static func setSquelch(index: Int, enabled: Bool)     -> String { sliceSet(index: index, key: "squelch",       value: enabled ? "1" : "0") }
+    static func setSquelchLevel(index: Int, level: Int)   -> String { sliceSet(index: index, key: "squelch_level", value: "\(level)") }
+
+    // MARK: Slice — APF (Audio Peaking Filter)
+
+    static func setAPF(index: Int, enabled: Bool)         -> String { sliceSet(index: index, key: "apf_on",      value: enabled ? "1" : "0") }
+    static func setAPFQFactor(index: Int, q: Int)         -> String { sliceSet(index: index, key: "apf_qfactor", value: "\(q)") }
+    static func setAPFGain(index: Int, gain: Int)         -> String { sliceSet(index: index, key: "apf_gain",    value: "\(gain)") }
+
+    // MARK: Slice — Tuning step
+
+    /// Standard step sizes accepted by the SmartSDR API (Hz).
+    static let stepValues: [Int] = [1, 10, 50, 100, 500, 1_000, 5_000, 10_000, 100_000]
+    static func setStep(index: Int, hz: Int)              -> String { sliceSet(index: index, key: "step",        value: "\(hz)") }
+
     // MARK: PTT
 
     static func pttDown() -> String { "xmit 1" }
     static func pttUp()   -> String { "xmit 0" }
+
+    // MARK: CW Keyer
+
+    static let cwSpeedRange:    ClosedRange<Int> = 5...60
+    static let cwSidetoneRange: ClosedRange<Int> = 0...100
+    static let cwPitchRange:    ClosedRange<Int> = 300...1000
+
+    static func cwSend(_ text: String)          -> String { "cw send \(text)" }
+    static func cwAbort()                       -> String { "cw abort" }
+    static func cwSpeed(_ wpm: Int)             -> String { "cw keyer_speed \(wpm)" }
+    static func cwSidetoneLevel(_ level: Int)   -> String { "cw sidetone_level \(level)" }
+    static func cwSidetoneFrequency(_ hz: Int)  -> String { "cw sidetone_frequency \(hz)" }
 
     // MARK: DAX streams (firmware 3.x+)
 
@@ -154,6 +190,41 @@ enum FlexProtocol {
             if let val = props["\(hz)hz"], let v = Int(val) { bands[hz] = v }
         }
         return bands
+    }
+
+    // MARK: Meter definitions
+
+    struct MeterDefinition {
+        let id: Int
+        let name: String
+        let source: String
+        let unit: String
+        let low: Double
+        let high: Double
+        let fps: Int
+    }
+
+    /// Parse a meter status line's properties dictionary into an array of meter definitions.
+    /// Meter properties arrive as `"<id>.<field>": "<value>"` pairs (e.g., `"1.nam": "SIGNAL"`).
+    static func parseMeters(from props: [String: String]) -> [MeterDefinition] {
+        var byID: [Int: [String: String]] = [:]
+        for (rawKey, val) in props {
+            let parts = rawKey.split(separator: ".", maxSplits: 1)
+            guard parts.count == 2, let id = Int(parts[0]) else { continue }
+            byID[id, default: [:]][String(parts[1])] = val
+        }
+        return byID.keys.sorted().compactMap { id in
+            guard let fields = byID[id], let name = fields["nam"] else { return nil }
+            return MeterDefinition(
+                id:     id,
+                name:   name,
+                source: fields["src"]  ?? "",
+                unit:   fields["unit"] ?? "",
+                low:    Double(fields["low"]  ?? "0") ?? 0,
+                high:   Double(fields["high"] ?? "0") ?? 0,
+                fps:    Int(fields["fps"] ?? "0") ?? 0
+            )
+        }
     }
 
     // MARK: WAN

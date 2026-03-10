@@ -26,8 +26,26 @@ final class Slice: Identifiable {
     var anfEnabled: Bool    = false
     var agcMode: FlexAGCMode = .med
     var agcThreshold: Int   = 65    // 0-100
-    var rfGain: Int         = 0     // dB
+    var rfGain: Int         = 0     // dB  (negative = attenuation)
     var audioLevel: Int     = 50    // 0-100
+
+    // APF (Audio Peaking Filter — primarily for CW)
+    var apfEnabled: Bool    = false
+    var apfQFactor: Int     = 0     // 0-33
+    var apfGain: Int        = 0     // 0-100
+
+    // RIT / XIT
+    var ritEnabled: Bool    = false
+    var ritOffsetHz: Int    = 0     // ±99999 Hz
+    var xitEnabled: Bool    = false
+    var xitOffsetHz: Int    = 0     // ±99999 Hz
+
+    // Squelch (used with FM/NFM)
+    var squelchEnabled: Bool = false
+    var squelchLevel: Int    = 20   // 0-100
+
+    // Tuning step
+    var stepHz: Int         = 100   // Hz per stepper click
 
     // Antenna
     var rxAnt: String       = "ANT1"
@@ -74,6 +92,16 @@ final class Slice: Identifiable {
         if let v = props["agc_threshold"], let t = Int(v) { agcThreshold = t }
         if let v = props["rfgain"],     let g = Int(v) { rfGain = g }
         if let v = props["audio_level"],let l = Int(v) { audioLevel = l }
+        if let v = props["apf_on"]          { apfEnabled  = v == "1" }
+        if let v = props["apf_qfactor"], let q = Int(v)  { apfQFactor = q }
+        if let v = props["apf_gain"],    let g = Int(v)  { apfGain    = g }
+        if let v = props["rit_on"]          { ritEnabled  = v == "1" }
+        if let v = props["rit_freq"],    let f = Int(v)  { ritOffsetHz = f }
+        if let v = props["xit_on"]          { xitEnabled  = v == "1" }
+        if let v = props["xit_freq"],    let f = Int(v)  { xitOffsetHz = f }
+        if let v = props["squelch"]         { squelchEnabled = v == "1" }
+        if let v = props["squelch_level"],  let l = Int(v) { squelchLevel = l }
+        if let v = props["step"],        let s = Int(v)  { stepHz = s }
         if let v = props["rxant"],      !v.isEmpty      { rxAnt = v }
         if let v = props["ant_list"],   !v.isEmpty {
             antList = v.split(separator: ",").map(String.init).filter { !$0.isEmpty }

@@ -9,6 +9,11 @@ struct ContentView: View {
     enum Tab: String, CaseIterable {
         case radio   = "Radio"
         case audio   = "Audio"
+        case cw      = "CW"
+        case memory  = "Memory"
+        case log     = "Log"
+        case meters  = "Meters"
+        case eq      = "EQ"
         case settings = "Settings"
     }
 
@@ -44,6 +49,16 @@ struct ContentView: View {
                 RadioListView(radio: radio, discovery: discovery)
             case .audio:
                 AudioView(radio: radio)
+            case .cw:
+                CWKeyerView(radio: radio)
+            case .memory:
+                MemoryView(radio: radio)
+            case .log:
+                LogView(radio: radio)
+            case .meters:
+                MetersView(radio: radio)
+            case .eq:
+                EQView(radio: radio)
             case .settings:
                 SettingsView(radio: radio)
             }
@@ -94,6 +109,11 @@ struct ContentView: View {
         switch tab {
         case .radio:    return "dot.radiowaves.left.and.right"
         case .audio:    return "speaker.wave.2"
+        case .cw:       return "key.horizontal"
+        case .memory:   return "star"
+        case .log:      return "list.bullet.clipboard"
+        case .meters:   return "gauge.with.needle"
+        case .eq:       return "slider.horizontal.3"
         case .settings: return "gearshape"
         }
     }

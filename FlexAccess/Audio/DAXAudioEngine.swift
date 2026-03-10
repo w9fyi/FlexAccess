@@ -2,13 +2,13 @@
 //  DAXAudioEngine.swift
 //  FlexAccess
 //
-//  Manages one DAX RX/TX audio session:
-//    - VITAReceiver    — UDP receive + VITA-49 parse
+//  Manages the DAX RX/TX audio pipeline:
 //    - NRPipeline      — noise reduction (swappable backend)
 //    - AudioOutputPlayer — CoreAudio HAL output
 //    - MicCapture      — TX mic → VITA-49 UDP
 //
-//  One instance lives in Radio; Radio calls start()/stop() around DAX sessions.
+//  Radio owns the single VITAReceiver and feeds decoded audio here via feedAudio(_:).
+//  One instance lives in Radio; Radio calls startAudio()/stop() around DAX sessions.
 //
 
 import Foundation
@@ -30,20 +30,19 @@ final class DAXAudioEngine {
 
     // MARK: Private components
 
-    private var vitaReceiver: VITAReceiver?
     private var audioPlayer:  AudioOutputPlayer?
     private var nrPipeline:   NRPipeline?
     private var micCapture:   MicCapture?
     private var nrProxy:      NoiseReductionProcessorProxy?
 
+    private var feedBatchCount = 0
+
     // MARK: Start
 
-    func start(udpPort: UInt16,
-               isWAN: Bool,
-               outputUID: String,
-               nrBackend: String,
-               nrEnabled: Bool) throws {
-        stop()
+    func startAudio(outputUID: String,
+                    nrBackend: String,
+                    nrEnabled: Bool) throws {
+        stopAudio()
 
         // Build NR proxy
         let inner = makeNRProcessor(backend: nrBackend)
@@ -69,50 +68,28 @@ final class DAXAudioEngine {
         #endif
         audioPlayer = player
 
-        // Build VITA receiver
-        let receiver = VITAReceiver()
-        receiver.onLog   = { msg in AppFileLogger.shared.log("VITAReceiver: \(msg)") }
-        receiver.onError = { msg in AppFileLogger.shared.log("VITAReceiver ERROR: \(msg)") }
+        AppFileLogger.shared.log("DAXAudioEngine: audio started")
+    }
 
-        var batchCount = 0
-        receiver.onPacket = { [weak self] _, _ in
-            batchCount += 1
-            if batchCount >= 100 {
-                let n = batchCount; batchCount = 0
-                Task { @MainActor [weak self] in
-                    self?.audioPacketCount += n
-                    self?.lastPacketAt = Date()
-                }
+    /// Feed 48 kHz mono samples from the VITA receiver into the NR pipeline → audio player.
+    /// Called on the VITAReceiver background thread.
+    func feedAudio(_ samples: [Float]) {
+        feedBatchCount += 1
+        if feedBatchCount >= 100 {
+            let n = feedBatchCount; feedBatchCount = 0
+            Task { @MainActor [weak self] in
+                self?.audioPacketCount += n
+                self?.lastPacketAt = Date()
             }
         }
-        receiver.onAudio48kMono = { [weak pipeline, weak player] samples in
-            guard let pipeline, let player else { return }
-            pipeline.process(samples) { processed in player.enqueue48kMono(processed) }
-        }
-
-        if isWAN {
-            if let decoder = OpusDecoder() {
-                receiver.opusDecoder = decoder
-                AppFileLogger.shared.log("DAXAudioEngine: WAN path (Opus decoder)")
-            } else {
-                AppFileLogger.shared.log("DAXAudioEngine: WAN path — Opus decoder unavailable")
-            }
-        }
-
-        try receiver.start(port: udpPort)
-        vitaReceiver = receiver
-
-        AppFileLogger.shared.log("DAXAudioEngine: started UDP \(udpPort) WAN=\(isWAN)")
+        guard let pipeline = nrPipeline, let player = audioPlayer else { return }
+        pipeline.process(samples) { processed in player.enqueue48kMono(processed) }
     }
 
     // MARK: Stop
 
     func stop() {
-        micCapture?.stop();  micCapture  = nil
-        vitaReceiver?.stop(); vitaReceiver = nil
-        audioPlayer?.stop();  audioPlayer  = nil
-        nrPipeline?.reset();  nrPipeline   = nil
-        nrProxy     = nil
+        stopAudio()
         rxStreamIDHex = nil
         txStreamIDHex = nil
         audioPacketCount = 0
@@ -120,10 +97,17 @@ final class DAXAudioEngine {
         AppFileLogger.shared.log("DAXAudioEngine: stopped")
     }
 
+    func stopAudio() {
+        micCapture?.stop();  micCapture  = nil
+        audioPlayer?.stop();  audioPlayer  = nil
+        nrPipeline?.reset();  nrPipeline   = nil
+        nrProxy     = nil
+        feedBatchCount = 0
+    }
+
     // MARK: Stream ID updates (called from Radio when radio responds to stream create)
 
     func setExpectedStreamID(_ sid: UInt32) {
-        vitaReceiver?.expectedStreamID = sid
         rxStreamIDHex = String(format: "0x%08X", sid)
         AppFileLogger.shared.log("DAXAudioEngine: RX stream ID → \(rxStreamIDHex!)")
     }
@@ -131,13 +115,6 @@ final class DAXAudioEngine {
     func setTxStreamID(_ sid: UInt32) {
         txStreamIDHex = String(format: "0x%08X", sid)
         AppFileLogger.shared.log("DAXAudioEngine: TX stream ID → \(txStreamIDHex!)")
-    }
-
-    // MARK: Sample rate update (from radio's audio_stream status)
-
-    func setExpectedSampleRate(_ rate: Int) {
-        vitaReceiver?.expectedSampleRate = rate
-        AppFileLogger.shared.log("DAXAudioEngine: sample rate → \(rate) Hz")
     }
 
     // MARK: NR controls

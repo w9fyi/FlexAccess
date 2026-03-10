@@ -11,7 +11,7 @@ struct SliceView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
 
-            // Frequency
+            // Frequency + tuning step
             VStack(alignment: .leading, spacing: 4) {
                 Text("Frequency").font(.caption).foregroundStyle(.secondary)
                 HStack {
@@ -27,11 +27,23 @@ struct SliceView: View {
                                 freqString = String(format: "%.6f", Double(new) / 1_000_000)
                             }
                         }
-                    // Band up/down
-                    Stepper("", onIncrement: { stepFrequency(by: 1000) },
-                               onDecrement: { stepFrequency(by: -1000) })
+                    Stepper("", onIncrement: { stepFrequency(by:  slice.stepHz) },
+                               onDecrement: { stepFrequency(by: -slice.stepHz) })
                         .labelsHidden()
-                        .accessibilityLabel("Tune frequency by 1 kHz")
+                        .accessibilityLabel("Tune frequency by \(stepLabel(slice.stepHz))")
+                }
+                // Tuning step picker
+                HStack(spacing: 4) {
+                    Text("Step:").font(.caption).foregroundStyle(.secondary)
+                    ForEach(FlexProtocol.stepValues, id: \.self) { step in
+                        Button(stepLabel(step)) {
+                            radio.setStep(sliceIndex: slice.id, hz: step)
+                        }
+                        .buttonStyle(.bordered).controlSize(.mini)
+                        .tint(slice.stepHz == step ? Color.accentColor : nil)
+                        .accessibilityLabel("Tuning step \(stepLabel(step))")
+                        .accessibilityAddTraits(slice.stepHz == step ? [.isButton, .isSelected] : .isButton)
+                    }
                 }
             }
 
@@ -72,7 +84,6 @@ struct SliceView: View {
                         .accessibilityLabel("Filter high edge in hertz")
                     Text("Hz").font(.caption).foregroundStyle(.secondary)
                 }
-                // Preset filter buttons
                 HStack(spacing: 6) {
                     ForEach(filterPresets, id: \.0) { label, lo, hi in
                         Button(label) { radio.setFilter(sliceIndex: slice.id, lo: lo, hi: hi) }
@@ -106,7 +117,32 @@ struct SliceView: View {
                 }
             }
 
-            // DSP toggles
+            // RF Gain / Audio Level
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Levels").font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("RF Gain: \(slice.rfGain) dB").font(.caption)
+                        Slider(value: Binding(
+                            get: { Double(slice.rfGain) },
+                            set: { radio.setRFGain(sliceIndex: slice.id, db: Int($0)) }
+                        ), in: -100...0, step: 1)
+                            .frame(width: 120)
+                            .accessibilityLabel("RF gain \(slice.rfGain) dB")
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Audio: \(slice.audioLevel)").font(.caption)
+                        Slider(value: Binding(
+                            get: { Double(slice.audioLevel) },
+                            set: { radio.setAudioLevel(sliceIndex: slice.id, level: Int($0)) }
+                        ), in: 0...100, step: 1)
+                            .frame(width: 120)
+                            .accessibilityLabel("Audio level \(slice.audioLevel)")
+                    }
+                }
+            }
+
+            // DSP toggles (NR / NB / ANF)
             HStack(spacing: 16) {
                 Toggle("NR", isOn: Binding(get: { slice.nrEnabled },
                                            set: { radio.setNR(sliceIndex: slice.id, enabled: $0) }))
@@ -119,6 +155,109 @@ struct SliceView: View {
                     .accessibilityLabel("Automatic Notch Filter")
             }
             .toggleStyle(.button)
+
+            // APF — only shown for CW modes
+            if slice.mode == .cw || slice.mode == .cwl {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("APF").font(.caption).foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        Toggle("APF", isOn: Binding(
+                            get: { slice.apfEnabled },
+                            set: { radio.setAPF(sliceIndex: slice.id, enabled: $0) }))
+                            .toggleStyle(.button).controlSize(.small)
+                            .accessibilityLabel("Audio Peak Filter")
+                        if slice.apfEnabled {
+                            Text("Q:").font(.caption)
+                            Slider(value: Binding(
+                                get: { Double(slice.apfQFactor) },
+                                set: { radio.setAPFQFactor(sliceIndex: slice.id, q: Int($0)) }
+                            ), in: 0...33, step: 1)
+                                .frame(width: 80)
+                                .accessibilityLabel("APF Q factor \(slice.apfQFactor)")
+                            Text("Gain:").font(.caption)
+                            Slider(value: Binding(
+                                get: { Double(slice.apfGain) },
+                                set: { radio.setAPFGain(sliceIndex: slice.id, gain: Int($0)) }
+                            ), in: 0...100, step: 1)
+                                .frame(width: 80)
+                                .accessibilityLabel("APF gain \(slice.apfGain)")
+                        }
+                    }
+                }
+            }
+
+            // RIT / XIT
+            VStack(alignment: .leading, spacing: 4) {
+                Text("RIT / XIT").font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 16) {
+                    // RIT
+                    HStack(spacing: 4) {
+                        Toggle("RIT", isOn: Binding(
+                            get: { slice.ritEnabled },
+                            set: { radio.setRIT(sliceIndex: slice.id, enabled: $0) }))
+                            .toggleStyle(.button).controlSize(.small)
+                            .accessibilityLabel("Receiver Incremental Tuning")
+                        Stepper("", onIncrement: { radio.setRITOffset(sliceIndex: slice.id, hz: slice.ritOffsetHz + 10) },
+                                   onDecrement: { radio.setRITOffset(sliceIndex: slice.id, hz: slice.ritOffsetHz - 10) })
+                            .labelsHidden()
+                            .disabled(!slice.ritEnabled)
+                            .accessibilityLabel("RIT offset adjust")
+                        Text(offsetLabel(slice.ritOffsetHz))
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(minWidth: 64, alignment: .trailing)
+                            .accessibilityLabel("RIT offset \(slice.ritOffsetHz) hertz")
+                        if slice.ritOffsetHz != 0 {
+                            Button("Clear") { radio.setRITOffset(sliceIndex: slice.id, hz: 0) }
+                                .buttonStyle(.bordered).controlSize(.mini)
+                                .accessibilityLabel("Clear RIT offset")
+                        }
+                    }
+                    // XIT
+                    HStack(spacing: 4) {
+                        Toggle("XIT", isOn: Binding(
+                            get: { slice.xitEnabled },
+                            set: { radio.setXIT(sliceIndex: slice.id, enabled: $0) }))
+                            .toggleStyle(.button).controlSize(.small)
+                            .accessibilityLabel("Transmitter Incremental Tuning")
+                        Stepper("", onIncrement: { radio.setXITOffset(sliceIndex: slice.id, hz: slice.xitOffsetHz + 10) },
+                                   onDecrement: { radio.setXITOffset(sliceIndex: slice.id, hz: slice.xitOffsetHz - 10) })
+                            .labelsHidden()
+                            .disabled(!slice.xitEnabled)
+                            .accessibilityLabel("XIT offset adjust")
+                        Text(offsetLabel(slice.xitOffsetHz))
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(minWidth: 64, alignment: .trailing)
+                            .accessibilityLabel("XIT offset \(slice.xitOffsetHz) hertz")
+                        if slice.xitOffsetHz != 0 {
+                            Button("Clear") { radio.setXITOffset(sliceIndex: slice.id, hz: 0) }
+                                .buttonStyle(.bordered).controlSize(.mini)
+                                .accessibilityLabel("Clear XIT offset")
+                        }
+                    }
+                }
+            }
+
+            // Squelch — FM/NFM only
+            if slice.mode == .fm || slice.mode == .nfm {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Squelch").font(.caption).foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        Toggle("SQL", isOn: Binding(
+                            get: { slice.squelchEnabled },
+                            set: { radio.setSquelch(sliceIndex: slice.id, enabled: $0) }))
+                            .toggleStyle(.button).controlSize(.small)
+                            .accessibilityLabel("Squelch enable")
+                        Slider(value: Binding(
+                            get: { Double(slice.squelchLevel) },
+                            set: { radio.setSquelchLevel(sliceIndex: slice.id, level: Int($0)) }
+                        ), in: 0...100, step: 1)
+                            .frame(width: 120)
+                            .accessibilityLabel("Squelch level \(slice.squelchLevel) percent")
+                        Text("\(slice.squelchLevel)%").font(.caption)
+                            .accessibilityHidden(true)
+                    }
+                }
+            }
 
             // Antenna
             VStack(alignment: .leading, spacing: 4) {
@@ -162,6 +301,15 @@ struct SliceView: View {
         }
     }
 
+    private func stepLabel(_ hz: Int) -> String {
+        if hz >= 1_000 { return "\(hz / 1_000)k" }
+        return "\(hz)Hz"
+    }
+
+    private func offsetLabel(_ hz: Int) -> String {
+        hz == 0 ? "0 Hz" : (hz > 0 ? "+\(hz) Hz" : "\(hz) Hz")
+    }
+
     private func commitFrequency() {
         isEditingFreq = false
         guard let mhz = Double(freqString) else { return }
@@ -170,7 +318,6 @@ struct SliceView: View {
     }
 
     private func stepFrequency(by delta: Int) {
-        let current = slice.frequencyHz
-        radio.tune(sliceIndex: slice.id, hz: current + delta)
+        radio.tune(sliceIndex: slice.id, hz: slice.frequencyHz + delta)
     }
 }

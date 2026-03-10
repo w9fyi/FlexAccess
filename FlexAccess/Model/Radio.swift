@@ -86,6 +86,21 @@ final class Radio {
     private var pendingWANHandle: String?
     private var currentRadioIP: String = ""
 
+    // MARK: CW
+
+    let cwKeyer   = CWKeyer()
+    let cwDecoder = CWDecoder()
+
+    // MARK: Meters
+
+    private(set) var meters: [RadioMeter] = []
+    private var meterByID: [Int: RadioMeter] = [:]
+
+    // MARK: VITA / FFT
+
+    private var vitaReceiver: VITAReceiver?
+    private var fftReceivers: [String: FFTReceiver] = [:]   // key = "0x4XXXXXXX"
+
     // MARK: Init
 
     init(discovery: FlexDiscovery) {
@@ -112,6 +127,15 @@ final class Radio {
 
         setupConnectionCallbacks()
         setupSmartLinkBroker()
+        setupCWKeyer()
+    }
+
+    private func setupCWKeyer() {
+        cwKeyer.onSend  = { [weak self] text in self?.cwSendText(text) }
+        cwKeyer.onAbort = { [weak self] in self?.cwAbortSend() }
+        // Keep decoder in sync with keyer defaults
+        cwDecoder.targetFreq = Double(cwKeyer.pitch)
+        cwDecoder.wpm        = cwKeyer.speed
     }
 
     // MARK: Connect / Disconnect
@@ -244,6 +268,77 @@ final class Radio {
         connection.send(FlexProtocol.setTxAnt(ant: ant))
     }
 
+    // MARK: RIT / XIT
+
+    func setRIT(sliceIndex: Int, enabled: Bool) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.ritEnabled = enabled
+        connection.send(FlexProtocol.setRIT(index: sliceIndex, enabled: enabled))
+        announce(enabled ? "RIT on" : "RIT off")
+    }
+
+    func setRITOffset(sliceIndex: Int, hz: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.ritOffsetHz = hz
+        connection.send(FlexProtocol.setRITOffset(index: sliceIndex, hz: hz))
+    }
+
+    func setXIT(sliceIndex: Int, enabled: Bool) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.xitEnabled = enabled
+        connection.send(FlexProtocol.setXIT(index: sliceIndex, enabled: enabled))
+        announce(enabled ? "XIT on" : "XIT off")
+    }
+
+    func setXITOffset(sliceIndex: Int, hz: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.xitOffsetHz = hz
+        connection.send(FlexProtocol.setXITOffset(index: sliceIndex, hz: hz))
+    }
+
+    // MARK: Squelch
+
+    func setSquelch(sliceIndex: Int, enabled: Bool) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.squelchEnabled = enabled
+        connection.send(FlexProtocol.setSquelch(index: sliceIndex, enabled: enabled))
+    }
+
+    func setSquelchLevel(sliceIndex: Int, level: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.squelchLevel = level
+        connection.send(FlexProtocol.setSquelchLevel(index: sliceIndex, level: level))
+    }
+
+    // MARK: APF
+
+    func setAPF(sliceIndex: Int, enabled: Bool) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.apfEnabled = enabled
+        connection.send(FlexProtocol.setAPF(index: sliceIndex, enabled: enabled))
+        announce(enabled ? "Audio peak filter on" : "Audio peak filter off")
+    }
+
+    func setAPFQFactor(sliceIndex: Int, q: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.apfQFactor = q
+        connection.send(FlexProtocol.setAPFQFactor(index: sliceIndex, q: q))
+    }
+
+    func setAPFGain(sliceIndex: Int, gain: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.apfGain = gain
+        connection.send(FlexProtocol.setAPFGain(index: sliceIndex, gain: gain))
+    }
+
+    // MARK: Tuning step
+
+    func setStep(sliceIndex: Int, hz: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        slice.stepHz = hz
+        connection.send(FlexProtocol.setStep(index: sliceIndex, hz: hz))
+    }
+
     // MARK: EQ commands
 
     func setEQBand(type: FlexEQType, sliceIndex: Int, hz: Int, value: Int) {
@@ -256,6 +351,43 @@ final class Radio {
         guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
         if type == .rx { slice.rxEQEnabled = enabled } else { slice.txEQEnabled = enabled }
         connection.send(FlexProtocol.eqMode(type: type, enabled: enabled))
+    }
+
+    func setEQFlat(type: FlexEQType, sliceIndex: Int) {
+        guard let slice = slices.first(where: { $0.id == sliceIndex }) else { return }
+        for hz in FlexProtocol.eqBandHz {
+            if type == .rx { slice.rxEQBands[hz] = 0 } else { slice.txEQBands[hz] = 0 }
+        }
+        connection.send(FlexProtocol.eqFlat(type: type))
+    }
+
+    // MARK: CW commands
+
+    func cwSendText(_ text: String) {
+        connection.send(FlexProtocol.cwSend(text))
+        announce("Sending CW")
+    }
+
+    func cwAbortSend() {
+        cwKeyer.isSending = false
+        connection.send(FlexProtocol.cwAbort())
+    }
+
+    func cwSetSpeed(_ wpm: Int) {
+        cwKeyer.setSpeed(wpm)
+        cwDecoder.wpm = cwKeyer.speed
+        connection.send(FlexProtocol.cwSpeed(cwKeyer.speed))
+    }
+
+    func cwSetSidetoneLevel(_ level: Int) {
+        cwKeyer.setSidetoneLevel(level)
+        connection.send(FlexProtocol.cwSidetoneLevel(cwKeyer.sidetoneLevel))
+    }
+
+    func cwSetPitch(_ hz: Int) {
+        cwKeyer.setPitch(hz)
+        cwDecoder.targetFreq = Double(cwKeyer.pitch)
+        connection.send(FlexProtocol.cwSidetoneFrequency(cwKeyer.pitch))
     }
 
     // MARK: DAX audio
@@ -291,9 +423,8 @@ final class Radio {
         connection.send(FlexProtocol.setDAX(index: sliceIndex, channel: daxChannel))
 
         do {
-            try daxEngine.start(udpPort: udpPort, isWAN: isWAN,
-                                outputUID: audioOutputUID,
-                                nrBackend: nrBackend, nrEnabled: isNREnabled)
+            try daxEngine.startAudio(outputUID: audioOutputUID,
+                                     nrBackend: nrBackend, nrEnabled: isNREnabled)
             isDAXRunning = true
         } catch {
             lastError = error.localizedDescription
@@ -331,6 +462,7 @@ final class Radio {
     // MARK: Private — subscriptions
 
     private func sendInitialSubscriptions() {
+        startVITAReceiver()
         connection.send(FlexProtocol.clientProgram("FlexAccess"))
         let udpPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
         connection.send(FlexProtocol.clientUDPPort(udpPort))
@@ -359,6 +491,54 @@ final class Radio {
         }
         connection.send("eq rxsc info")
         connection.send("eq txsc info")
+    }
+
+    // MARK: Private — VITA receiver
+
+    private func startVITAReceiver() {
+        vitaReceiver?.stop()
+        vitaReceiver = nil
+
+        let udpPort: UInt16 = isWAN ? UInt16(pendingWANRadio?.publicUdpPort ?? 4993) : 4991
+        let receiver = VITAReceiver()
+        receiver.onLog   = { msg in AppFileLogger.shared.log("VITAReceiver: \(msg)") }
+        receiver.onError = { msg in AppFileLogger.shared.log("VITAReceiver ERROR: \(msg)") }
+
+        if isWAN {
+            if let decoder = OpusDecoder() {
+                receiver.opusDecoder = decoder
+                appendLog("VITA: WAN path — Opus decoder ready")
+            } else {
+                appendLog("VITA: WAN path — Opus decoder unavailable")
+            }
+        }
+
+        receiver.onAudio48kMono = { [weak self] samples in
+            self?.daxEngine.feedAudio(samples)
+            self?.cwDecoder.processSamples(samples)
+        }
+
+        receiver.onRawPacket = { [weak self] streamID, payload, count in
+            guard let self else { return }
+            let key = String(format: "0x%08X", streamID)
+            self.fftReceivers[key]?.process(payload: payload, count: count)
+        }
+
+        receiver.onMeterValues = { [weak self] values in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                for (idx, val) in values { meterByID[idx]?.value = val }
+            }
+        }
+
+        do {
+            try receiver.start(port: udpPort)
+            vitaReceiver = receiver
+            appendLog("VITA receiver: UDP \(udpPort) \(isWAN ? "WAN" : "LAN")")
+        } catch {
+            lastError = error.localizedDescription
+            appendLog("VITA receiver error: \(error.localizedDescription)")
+        }
     }
 
     // MARK: Private — status handling
@@ -397,8 +577,17 @@ final class Radio {
             if let hexStr = msg.properties["_streamid"],
                let sid = UInt32(hexStr.dropFirst(2), radix: 16) {
                 let isDaxTX = msg.properties["type"] == "dax_tx" || msg.properties["dax_tx"] == "1"
-                if isDaxTX { daxEngine.setTxStreamID(sid) }
-                else       { daxEngine.setExpectedStreamID(sid) }
+                if isDaxTX {
+                    daxEngine.setTxStreamID(sid)
+                } else {
+                    daxEngine.setExpectedStreamID(sid)
+                    vitaReceiver?.expectedStreamID = sid
+                }
+            }
+            if let rateStr = msg.properties["dax_rate"] ?? msg.properties["sample_rate"],
+               let rate = Int(rateStr) {
+                vitaReceiver?.expectedSampleRate = rate
+                AppFileLogger.shared.log("VITA receiver: sample rate → \(rate) Hz")
             }
             if msg.properties["in_use"] == "1" { isDAXRunning = true }
             if msg.properties["in_use"] == "0" { isDAXRunning = false }
@@ -410,11 +599,33 @@ final class Radio {
                 let pan = Panadapter(id: panID)
                 pan.applyProperties(msg.properties)
                 panadapters.append(pan)
+                // Create FFTReceiver — stream key is panID normalised to uppercase
+                let rxr = FFTReceiver(panID: panID, panadapter: pan)
+                if let sid = rxr.streamID {
+                    let key = String(format: "0x%08X", sid)
+                    fftReceivers[key] = rxr
+                    appendLog("Panadapter \(panID) → FFT stream \(key)")
+                }
             }
         case .waterfall(let wfID):
             AppFileLogger.shared.log("Waterfall status: \(wfID) — \(msg.properties)")
         case .meter:
-            break   // meters handled separately if needed
+            let defs = FlexProtocol.parseMeters(from: msg.properties)
+            for def in defs {
+                if let existing = meterByID[def.id] {
+                    existing.name   = def.name
+                    existing.source = def.source
+                    existing.unit   = def.unit
+                    existing.low    = def.low
+                    existing.high   = def.high
+                    existing.fps    = def.fps
+                } else {
+                    let meter = RadioMeter(definition: def)
+                    meterByID[def.id] = meter
+                    meters.append(meter)
+                    meters.sort { $0.id < $1.id }
+                }
+            }
         case .unknown:
             AppFileLogger.shared.log("Radio: unhandled status — \(body.prefix(120))")
         }
@@ -472,8 +683,14 @@ final class Radio {
                 announce("Connected to radio")
             case .disconnected:
                 appendLog("Disconnected")
+                vitaReceiver?.stop(); vitaReceiver = nil
+                fftReceivers.removeAll()
                 slices.removeAll()
                 panadapters.removeAll()
+                meters.removeAll()
+                meterByID.removeAll()
+                cwKeyer.isSending = false
+                cwDecoder.stop()
                 isTX = false
                 stopDAX(sendCommand: false)
                 announce("Disconnected from radio")

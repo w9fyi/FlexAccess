@@ -29,9 +29,17 @@ final class VITAReceiver {
     var onAudio48kMono: (([Float]) -> Void)?
     var onPacket:       ((UInt32, Int) -> Void)?
 
+    /// Called for every packet whose stream ID is in the panadapter range (≥ 0x40000000).
+    /// Receives (streamID, payloadPointer, payloadByteCount).
+    var onRawPacket:    ((UInt32, UnsafePointer<UInt8>, Int) -> Void)?
+
+    /// Called when a meter value update packet arrives (stream IDs < 0x10000000).
+    /// Dictionary key = meter index, value = float reading.
+    var onMeterValues:  (([Int: Double]) -> Void)?
+
     // MARK: Configuration
 
-    /// Filter packets by stream ID. Updated from audio_stream status.
+    /// Filter audio packets by stream ID. Updated from audio_stream status.
     var expectedStreamID: UInt32?
 
     /// Actual DAX sample rate from radio status (24000 or 48000). Default 24000.
@@ -148,6 +156,49 @@ final class VITAReceiver {
         guard packetType == 1 || packetType == 3 else { return }
 
         let streamID = be32(bytes, at: 4)
+
+        // Panadapter FFT stream IDs are in the 0x40000000 range.
+        // Route them directly to the raw callback and skip audio processing.
+        if streamID >= 0x40000000 {
+            var hdrW = 2
+            if (w0 >> 27) & 1 == 1 { hdrW += 2 }
+            if (w0 >> 22) & 0x03 != 0 { hdrW += 1 }
+            if (w0 >> 20) & 0x03 != 0 { hdrW += 2 }
+            let hdrB  = hdrW * 4
+            let total = pktWords > 0 ? pktWords * 4 : count
+            let trail = (w0 >> 26) & 1 == 1 ? 4 : 0
+            if total > hdrB + trail {
+                let payload = bytes.advanced(by: hdrB)
+                onRawPacket?(streamID, payload, total - hdrB - trail)
+            }
+            return
+        }
+
+        // Meter stream IDs are small (< 0x10000000); DAX audio is 0x10000000+.
+        // Route to meter callback and skip audio processing.
+        if streamID < 0x10000000 {
+            var hdrW = 2
+            if (w0 >> 27) & 1 == 1 { hdrW += 2 }
+            if (w0 >> 22) & 0x03 != 0 { hdrW += 1 }
+            if (w0 >> 20) & 0x03 != 0 { hdrW += 2 }
+            let hdrB  = hdrW * 4
+            let total = pktWords > 0 ? pktWords * 4 : count
+            let trail = (w0 >> 26) & 1 == 1 ? 4 : 0
+            let payB  = total - hdrB - trail
+            if payB >= 4, let cb = onMeterValues {
+                let payload = bytes.advanced(by: hdrB)
+                var values: [Int: Double] = [:]
+                let pairs = payB / 4
+                for i in 0..<pairs {
+                    let idx = Int((UInt16(payload[i*4]) << 8) | UInt16(payload[i*4+1]))
+                    let raw = Int16(bitPattern: (UInt16(payload[i*4+2]) << 8) | UInt16(payload[i*4+3]))
+                    values[idx] = Double(raw) / 128.0
+                }
+                cb(values)
+            }
+            return
+        }
+
         if let exp = expectedStreamID, streamID != exp { return }
 
         var hdrWords = 2

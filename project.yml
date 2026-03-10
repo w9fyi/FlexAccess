@@ -80,3 +80,24 @@ targets:
         embed: false
       - framework: Network.framework
         embed: false
+
+  FlexAccessTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget:
+      macOS: "14.0"
+    sources:
+      - path: FlexAccessTests
+      # Compile only the files under test — avoids dragging in C/WDSP deps
+      - path: FlexAccess/Core/FlexProtocol.swift
+      - path: FlexAccess/Model/Slice.swift
+      - path: FlexAccess/Model/RadioMeter.swift
+      - path: FlexAccess/Model/FrequencyMemory.swift
+      - path: FlexAccess/Model/QSOEntry.swift
+      - path: FlexAccess/CW/MorseTable.swift
+      - path: FlexAccess/CW/CWDecoder.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.w9fyi.flexaccess.tests
+        SWIFT_VERSION: "5.10"
+        GENERATE_INFOPLIST_FILE: YES
