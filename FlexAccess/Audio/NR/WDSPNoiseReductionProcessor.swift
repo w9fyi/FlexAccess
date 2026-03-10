@@ -1,16 +1,11 @@
 import Foundation
 
-enum WDSPMode {
-    case emnr  // Enhanced Minimum NR: Wiener filter + psychoacoustic artifact elimination
-    case anr   // Adaptive NR: LMS adaptive filter (good for periodic tones/carriers)
-}
+enum WDSPMode { case emnr, anr }
 
 final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
-    // WDSP_EMNR / WDSP_ANR are opaque C structs (forward-declared only),
-    // so Swift imports them as OpaquePointer, not UnsafeMutablePointer<T>.
     private var emnrCtx: OpaquePointer?
     private var anrCtx:  OpaquePointer?
-    private(set) var mode: WDSPMode
+    private let mode: WDSPMode
 
     var isAvailable: Bool { emnrCtx != nil || anrCtx != nil }
     var isEnabled: Bool = false
@@ -20,7 +15,7 @@ final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
         switch mode {
         case .emnr:
             guard let ctx = wdsp_emnr_create(sampleRate) else {
-                AppFileLogger.shared.log("WDSP EMNR: create failed (FFTW not available?)")
+                AppFileLogger.shared.log("WDSP EMNR: create failed")
                 return nil
             }
             emnrCtx = ctx
@@ -31,7 +26,7 @@ final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
             }
             anrCtx = ctx
         }
-        AppFileLogger.shared.log("WDSP \(mode == .emnr ? "EMNR" : "ANR"): initialized at \(sampleRate) Hz")
+        AppFileLogger.shared.log("WDSP \(mode == .emnr ? "EMNR" : "ANR"): ready at \(sampleRate) Hz")
     }
 
     deinit {
@@ -39,22 +34,14 @@ final class WDSPNoiseReductionProcessor: NoiseReductionProcessor {
         if let c = anrCtx  { wdsp_anr_destroy(c) }
     }
 
-    func processFrame48kMono(_ frame: [Float]) -> [Float] {
-        var out = frame
-        processFrame48kMonoInPlace(&out)
-        return out
-    }
-
     func processFrame48kMonoInPlace(_ frame: inout [Float]) {
         guard isEnabled else { return }
         frame.withUnsafeMutableBufferPointer { buf in
             guard let base = buf.baseAddress else { return }
-            let count = Int32(buf.count)
+            let n = Int32(buf.count)
             switch mode {
-            case .emnr:
-                if let c = emnrCtx { wdsp_emnr_process(c, base, count) }
-            case .anr:
-                if let c = anrCtx  { wdsp_anr_process(c, base, count) }
+            case .emnr: if let c = emnrCtx { wdsp_emnr_process(c, base, n) }
+            case .anr:  if let c = anrCtx  { wdsp_anr_process(c, base, n) }
             }
         }
     }
