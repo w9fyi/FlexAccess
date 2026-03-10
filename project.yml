@@ -94,8 +94,10 @@ targets:
       - path: FlexAccess/Model/RadioMeter.swift
       - path: FlexAccess/Model/FrequencyMemory.swift
       - path: FlexAccess/Model/QSOEntry.swift
+      - path: FlexAccess/Model/Panadapter.swift
       - path: FlexAccess/CW/MorseTable.swift
       - path: FlexAccess/CW/CWDecoder.swift
+      - path: FlexAccess/Panadapter/FFTReceiver.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.w9fyi.flexaccess.tests

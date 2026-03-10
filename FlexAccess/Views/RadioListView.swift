@@ -47,6 +47,13 @@ struct RadioListView: View {
                             .padding(.horizontal)
                     }
 
+                    // Bandscope — shown when at least one panadapter is active
+                    if let pan = radio.panadapters.first {
+                        let sliceMHz = Double(radio.activeSlice?.frequencyHz ?? 0) / 1_000_000
+                        BandscopeView(pan: pan, radio: radio, sliceFreqMHz: sliceMHz)
+                            .padding(.horizontal)
+                    }
+
                     // Log (last 8 lines)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Log").font(.caption.bold()).foregroundStyle(.secondary)
