@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @Bindable var radio: Radio
     let discovery: FlexDiscovery
+    let profileStore: ConnectionProfileStore
 
     @State private var selectedTab: Tab = .radio
 
@@ -46,7 +47,7 @@ struct ContentView: View {
             // Tab content
             switch selectedTab {
             case .radio:
-                RadioListView(radio: radio, discovery: discovery)
+                RadioListView(radio: radio, discovery: discovery, profileStore: profileStore)
             case .audio:
                 AudioView(radio: radio)
             case .cw:

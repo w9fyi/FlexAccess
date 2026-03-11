@@ -25,6 +25,7 @@
 		1485A515B29A8BB82025998F /* RadioListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F06B3A6F2E4CFD3B37EEAAD /* RadioListView.swift */; };
 		1660877BD74CFF6DDC5150C9 /* MorseTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48903A3B1BA365BB601F2238 /* MorseTable.swift */; };
 		178CD25AF8BCF9D493987160 /* CWKeyerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3793C92950E1D99B74B107 /* CWKeyerView.swift */; };
+		1988012E68C318E9A86D25B4 /* ConnectionProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650D1EB441E22E133FC78FE /* ConnectionProfile.swift */; };
 		198D91E6C3B00A113F25657D /* MIDIMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AAD9665ECAB652C0FAECA81 /* MIDIMappingTests.swift */; };
 		1D98170ADEA2E2D46C71EE14 /* FlexProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47B2836C3C5028671ADAF2A /* FlexProtocolTests.swift */; };
 		21C6E9804C1D86D904FC03DD /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E56F0AB99DFDC733D043C2B8 /* AudioRingBuffer.swift */; };
@@ -36,6 +37,7 @@
 		29C4823AA4B5C4A9923B78FD /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F9E64E9289565A28D9D9F3 /* AppFileLogger.swift */; };
 		2A816A0E75A23DE982DD0B0C /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E56F0AB99DFDC733D043C2B8 /* AudioRingBuffer.swift */; };
 		2C56D4C3FAF5F81B9011250A /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 231EB64FB0719E704D6C07AE /* CoreMIDI.framework */; };
+		2DD5C0B4F20F04E634B90499 /* ConnectionProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650D1EB441E22E133FC78FE /* ConnectionProfile.swift */; };
 		388847B1C0CFF732134A05BA /* DiscoveredRadio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B34868EF903A1144C223056 /* DiscoveredRadio.swift */; };
 		39765F80488C1AA4574EB2B5 /* FlexConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AF25D2A7D02A6816BEB928 /* FlexConnection.swift */; };
 		3A75AFDCD52C6F7811E331F4 /* MorseTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48903A3B1BA365BB601F2238 /* MorseTable.swift */; };
@@ -56,6 +58,7 @@
 		59A3EDE3625CBC8E2107B04B /* MetersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC773A146ED72A0EFB5A5CB /* MetersView.swift */; };
 		5C0CB5A38C359DD3363ED7A2 /* Panadapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A694BA0C7781040DC0446A6B /* Panadapter.swift */; };
 		5FCDA0A978DA62A06DE9CA14 /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F9E64E9289565A28D9D9F3 /* AppFileLogger.swift */; };
+		619C67F6141E3BB4FBC0788E /* ConnectionProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650D1EB441E22E133FC78FE /* ConnectionProfile.swift */; };
 		63EC53ECE9308128613AEEFC /* BandscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F40649127BC398DAB49A29 /* BandscopeView.swift */; };
 		659765283E29CFDE2A13F258 /* CWDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C749938B35C447AF58FC42 /* CWDecoder.swift */; };
 		688C3B1FD7D9229A8551EF95 /* FrequencyMemoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 797B4AB7C9FEA8E90554A25C /* FrequencyMemoryTests.swift */; };
@@ -116,6 +119,7 @@
 		D3B256C14F27B835327E2B09 /* RadioMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BA7E8AE2E46B38CA4A832E3 /* RadioMeter.swift */; };
 		D5A339D7395A51C9B18BBEBC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864AC66739F3414521D81BED /* ContentView.swift */; };
 		D62F8615D5F8B143D50B3B32 /* SmartLinkAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DA6B7A018778BD01814925 /* SmartLinkAuth.swift */; };
+		D8289D037C50045C70ED21C9 /* ConnectionProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893820FCBB944382C6538A39 /* ConnectionProfileTests.swift */; };
 		DA90EBEF49EBB913402F62C1 /* MIDIMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B70F7B500F7284BD95BC052 /* MIDIMapping.swift */; };
 		DCD8B673607101E01500299E /* MemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B763DA0E191B2F6582B984 /* MemoryView.swift */; };
 		DCEB70D62E1D890F01714BBD /* FlexDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC13E62530D6FF8CAB58026 /* FlexDiscovery.swift */; };
@@ -185,6 +189,7 @@
 		83A49C0BB4BA87A285B3BD64 /* CWKeyer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CWKeyer.swift; sourceTree = "<group>"; };
 		85C749938B35C447AF58FC42 /* CWDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CWDecoder.swift; sourceTree = "<group>"; };
 		864AC66739F3414521D81BED /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		893820FCBB944382C6538A39 /* ConnectionProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionProfileTests.swift; sourceTree = "<group>"; };
 		8E3C20B999E17DCC3AFC8803 /* FlexProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexProtocol.swift; sourceTree = "<group>"; };
 		8EF44D1D6C9EFE2F518D7390 /* FrequencyMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyMemory.swift; sourceTree = "<group>"; };
 		9029EFB4664769ABEFE5F1C1 /* MicCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicCapture.swift; sourceTree = "<group>"; };
@@ -212,6 +217,7 @@
 		F1831FB3038B6E5532F6897C /* SliceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliceView.swift; sourceTree = "<group>"; };
 		F30FC095FF8DA2229154A0D4 /* FlexAccessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlexAccessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4DF92B03209D910BCAD2EE6 /* SlicePropertiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlicePropertiesTests.swift; sourceTree = "<group>"; };
+		F650D1EB441E22E133FC78FE /* ConnectionProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionProfile.swift; sourceTree = "<group>"; };
 		F8DE5FDBDE84960D9A391B87 /* VITAReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VITAReceiver.swift; sourceTree = "<group>"; };
 		F8E6C076287F3E7409D12111 /* DAXAudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAXAudioEngine.swift; sourceTree = "<group>"; };
 		FA8A63BCC7D4E37F2D86E85D /* QSOLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QSOLog.swift; sourceTree = "<group>"; };
@@ -274,6 +280,7 @@
 		1FA82ADA4988D52BED15464D /* FlexAccessTests */ = {
 			isa = PBXGroup;
 			children = (
+				893820FCBB944382C6538A39 /* ConnectionProfileTests.swift */,
 				80C8B0681DF623C50399ADD3 /* CWProtocolTests.swift */,
 				543E8F03AABD9111BFF2E5F9 /* EQTests.swift */,
 				27CF1E96FFC63422144EE674 /* FFTReceiverTests.swift */,
@@ -417,6 +424,7 @@
 		D1891D5B617B3B2789381F44 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				F650D1EB441E22E133FC78FE /* ConnectionProfile.swift */,
 				4B34868EF903A1144C223056 /* DiscoveredRadio.swift */,
 				8EF44D1D6C9EFE2F518D7390 /* FrequencyMemory.swift */,
 				A694BA0C7781040DC0446A6B /* Panadapter.swift */,
@@ -561,6 +569,7 @@
 				F3204ABAD6447423755B36A4 /* CWDecoder.swift in Sources */,
 				75BBA2D48C18B29BF01124DD /* CWKeyer.swift in Sources */,
 				178CD25AF8BCF9D493987160 /* CWKeyerView.swift in Sources */,
+				619C67F6141E3BB4FBC0788E /* ConnectionProfile.swift in Sources */,
 				06F0697CBFB1E55A6C36B381 /* ContentView.swift in Sources */,
 				77298ADC9AD35F9338B7E251 /* DAXAudioEngine.swift in Sources */,
 				95118FC55C9D906C301B80B9 /* DiscoveredRadio.swift in Sources */,
@@ -612,6 +621,8 @@
 			files = (
 				659765283E29CFDE2A13F258 /* CWDecoder.swift in Sources */,
 				DE2D9B2C40E7EC33339F694E /* CWProtocolTests.swift in Sources */,
+				2DD5C0B4F20F04E634B90499 /* ConnectionProfile.swift in Sources */,
+				D8289D037C50045C70ED21C9 /* ConnectionProfileTests.swift in Sources */,
 				E804BDC047E10EDD8E1CD2F3 /* EQTests.swift in Sources */,
 				8BCFCD14F614E85F1666EB5F /* FFTReceiver.swift in Sources */,
 				78279EE387E5485672325084 /* FFTReceiverTests.swift in Sources */,
@@ -649,6 +660,7 @@
 				58A0B72008787C9146FD34E9 /* CWDecoder.swift in Sources */,
 				7EDFF0C64292AF44227B591B /* CWKeyer.swift in Sources */,
 				A3B446BDB9439850360E8BC8 /* CWKeyerView.swift in Sources */,
+				1988012E68C318E9A86D25B4 /* ConnectionProfile.swift in Sources */,
 				D5A339D7395A51C9B18BBEBC /* ContentView.swift in Sources */,
 				241D516E6068858CC81ED50D /* DAXAudioEngine.swift in Sources */,
 				388847B1C0CFF732134A05BA /* DiscoveredRadio.swift in Sources */,

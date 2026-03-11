@@ -4,10 +4,13 @@ import SwiftUI
 struct RadioListView: View {
     @Bindable var radio: Radio
     @ObservedObject var discovery: FlexDiscovery
+    let profileStore: ConnectionProfileStore
 
     @State private var showDirectConnect = false
     @State private var directHost = ""
     @State private var directPort = "4992"
+    @State private var profileLabel = ""
+    @State private var showSaveConfirm = false
 
     var body: some View {
         ScrollView {
@@ -93,6 +96,22 @@ struct RadioListView: View {
                     .padding()
                     .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
 
+                    // Saved profiles
+                    if !profileStore.profiles.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Saved Profiles").font(.headline)
+                            ForEach(profileStore.profiles) { profile in
+                                ProfileRowView(profile: profile) {
+                                    radio.connect(host: profile.host, port: profile.port)
+                                } onDelete: {
+                                    profileStore.delete(id: profile.id)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+                    }
+
                     // Direct connect
                     VStack(alignment: .leading, spacing: 8) {
                         Button(showDirectConnect ? "Hide Direct Connect" : "Direct Connect…") {
@@ -101,22 +120,53 @@ struct RadioListView: View {
                         .accessibilityLabel(showDirectConnect ? "Hide direct connect form" : "Show direct connect form")
 
                         if showDirectConnect {
-                            HStack {
-                                TextField("IP Address", text: $directHost)
-                                    .textFieldStyle(.roundedBorder)
-                                    .frame(maxWidth: 200)
-                                    .accessibilityLabel("Radio IP address")
-                                TextField("Port", text: $directPort)
-                                    .textFieldStyle(.roundedBorder)
-                                    .frame(maxWidth: 80)
-                                    .accessibilityLabel("Port number")
-                                Button("Connect") {
-                                    if let port = Int(directPort), !directHost.isEmpty {
-                                        radio.connect(host: directHost, port: port)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    TextField("IP Address", text: $directHost)
+                                        .textFieldStyle(.roundedBorder)
+                                        .frame(maxWidth: 200)
+                                        .accessibilityLabel("Radio IP address")
+                                    TextField("Port", text: $directPort)
+                                        .textFieldStyle(.roundedBorder)
+                                        .frame(maxWidth: 80)
+                                        .accessibilityLabel("Port number")
+                                    Button("Connect") {
+                                        if let port = Int(directPort), !directHost.isEmpty {
+                                            radio.connect(host: directHost, port: port)
+                                        }
+                                    }
+                                    .disabled(directHost.isEmpty)
+                                    .accessibilityLabel("Connect to \(directHost)")
+                                }
+
+                                // Save profile row
+                                HStack {
+                                    TextField("Label (optional)", text: $profileLabel)
+                                        .textFieldStyle(.roundedBorder)
+                                        .frame(maxWidth: 200)
+                                        .accessibilityLabel("Profile label, optional")
+                                    Button("Save Profile") {
+                                        guard !directHost.isEmpty, let port = Int(directPort) else { return }
+                                        profileStore.add(ConnectionProfile(label: profileLabel,
+                                                                           host: directHost,
+                                                                           port: port))
+                                        profileLabel = ""
+                                        showSaveConfirm = true
+                                    }
+                                    .disabled(directHost.isEmpty)
+                                    .accessibilityLabel("Save connection profile for \(directHost)")
+                                    if showSaveConfirm {
+                                        Label("Saved", systemImage: "checkmark.circle.fill")
+                                            .foregroundStyle(.green)
+                                            .font(.caption)
+                                            .transition(.opacity)
+                                            .onAppear {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                    showSaveConfirm = false
+                                                }
+                                            }
                                     }
                                 }
-                                .disabled(directHost.isEmpty)
-                                .accessibilityLabel("Connect to \(directHost)")
                             }
                         }
                     }
@@ -157,6 +207,39 @@ private struct RadioRowView: View {
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(radio.displayName), \(radio.source.rawValue), \(radio.ip)")
+        .accessibilityHint("Activate to connect")
+        .accessibilityAddTraits(.isButton)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onConnect)
+    }
+}
+
+private struct ProfileRowView: View {
+    let profile: ConnectionProfile
+    let onConnect: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(profile.displayName).font(.callout.bold())
+                if !profile.subtitle.isEmpty {
+                    Text(profile.subtitle).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Button("Connect", action: onConnect)
+                .accessibilityLabel("Connect to \(profile.displayName)")
+            Button(role: .destructive) { onDelete() } label: {
+                Image(systemName: "trash")
+            }
+            .accessibilityLabel("Delete profile \(profile.displayName)")
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(profile.subtitle.isEmpty
+                            ? profile.displayName
+                            : "\(profile.displayName), \(profile.subtitle)")
         .accessibilityHint("Activate to connect")
         .accessibilityAddTraits(.isButton)
         .contentShape(Rectangle())
