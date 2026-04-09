@@ -1,0 +1,122 @@
+name: Bug report
+description: Report a problem with FlexAccess
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem! Please fill in as much as you can.
+        Don't worry if you don't know every answer — just leave a field blank and we'll help you figure it out.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: How bad is this problem for you?
+      description: Your best guess — we may adjust this after reviewing.
+      options:
+        - "Critical — I can't use the app at all, or it lost my data"
+        - "Severe — A big feature is broken and I have no workaround"
+        - "High — Something important is broken but I can work around it"
+        - "Medium — It's annoying but I can still use the app"
+        - "Low — Small problem, cosmetic, or a suggestion"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+      description: Describe what you were doing and what went wrong. Plain English is perfect.
+      placeholder: "I clicked the Connect button and the app froze for 30 seconds, then showed 'disconnected'."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: If you can, list the steps so we can try it ourselves.
+      placeholder: |
+        1. Open FlexAccess
+        2. Click Connect
+        3. ...
+    validations:
+      required: false
+
+  - type: input
+    id: app_version
+    attributes:
+      label: FlexAccess version
+      description: "Find this in the FlexAccess menu → About FlexAccess. If you can't find it, leave blank."
+      placeholder: "e.g. 1.2.3"
+    validations:
+      required: false
+
+  - type: input
+    id: macos_version
+    attributes:
+      label: macOS version
+      description: "Apple menu → About This Mac. Example: macOS 26.1"
+      placeholder: "macOS 26.1"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Which platform?
+      options:
+        - Mac
+        - iPhone
+        - iPad
+    validations:
+      required: true
+
+  - type: input
+    id: flex_model
+    attributes:
+      label: FlexRadio model and firmware
+      description: "e.g. FLEX-8400 firmware 3.9.9. Found in SmartSDR → Radio Setup."
+      placeholder: "FLEX-8400, firmware 3.9.9"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: voiceover
+    attributes:
+      label: Were you using VoiceOver or another screen reader?
+      options:
+        - "No"
+        - "VoiceOver on Mac"
+        - "VoiceOver on iPhone/iPad"
+        - "Other"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log file (optional but very helpful)
+      description: |
+        FlexAccess writes logs. If you can, open Console.app, search for "FlexAccess",
+        copy the last 50 or so lines, and paste them here inside the code block.
+      value: |
+        ```
+        paste log lines here
+        ```
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Not sure how to find something above?** Submit the form anyway — we'll guide you through it in a reply.
