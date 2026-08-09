@@ -38,6 +38,7 @@
 		2A816A0E75A23DE982DD0B0C /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E56F0AB99DFDC733D043C2B8 /* AudioRingBuffer.swift */; };
 		2C56D4C3FAF5F81B9011250A /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 231EB64FB0719E704D6C07AE /* CoreMIDI.framework */; };
 		2DD5C0B4F20F04E634B90499 /* ConnectionProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650D1EB441E22E133FC78FE /* ConnectionProfile.swift */; };
+		3732D7BE8D4F98B3AB062DC5 /* AppFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F9E64E9289565A28D9D9F3 /* AppFileLogger.swift */; };
 		388847B1C0CFF732134A05BA /* DiscoveredRadio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B34868EF903A1144C223056 /* DiscoveredRadio.swift */; };
 		39765F80488C1AA4574EB2B5 /* FlexConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AF25D2A7D02A6816BEB928 /* FlexConnection.swift */; };
 		3A75AFDCD52C6F7811E331F4 /* MorseTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48903A3B1BA365BB601F2238 /* MorseTable.swift */; };
@@ -115,9 +116,11 @@
 		C64FC212A8594C34A79A235C /* FlexProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3C20B999E17DCC3AFC8803 /* FlexProtocol.swift */; };
 		C72BEFB7C9CADDA4D17FD15F /* OpusDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398CD8F99E2F6C3C16C3CE3F /* OpusDecoder.swift */; };
 		CDA50B50BD77BB1C5F41A4BB /* FDnoiseIQ.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACF0AE7A9B2C360B28FF98D /* FDnoiseIQ.c */; };
+		D12126779CE573FD017DEA1B /* OpusDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0049BF3AC06E0AE9994F9870 /* OpusDecoderTests.swift */; };
 		D3653423F67FDBFEF8681969 /* RadioMeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97634B5D867747144BA6129C /* RadioMeterTests.swift */; };
 		D3B256C14F27B835327E2B09 /* RadioMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BA7E8AE2E46B38CA4A832E3 /* RadioMeter.swift */; };
 		D5A339D7395A51C9B18BBEBC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864AC66739F3414521D81BED /* ContentView.swift */; };
+		D5F00C0A55E159092958E17A /* OpusDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398CD8F99E2F6C3C16C3CE3F /* OpusDecoder.swift */; };
 		D62F8615D5F8B143D50B3B32 /* SmartLinkAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DA6B7A018778BD01814925 /* SmartLinkAuth.swift */; };
 		D8289D037C50045C70ED21C9 /* ConnectionProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893820FCBB944382C6538A39 /* ConnectionProfileTests.swift */; };
 		DA90EBEF49EBB913402F62C1 /* MIDIMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B70F7B500F7284BD95BC052 /* MIDIMapping.swift */; };
@@ -147,6 +150,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0049BF3AC06E0AE9994F9870 /* OpusDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusDecoderTests.swift; sourceTree = "<group>"; };
 		006B09DB3202E116B778D87D /* anr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = anr.c; sourceTree = "<group>"; };
 		1479C2F809021A80ED586DDC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		17F92C61A073A8A84D53AD3D /* FlexAccess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlexAccess.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -290,6 +294,7 @@
 				51CD11F5303DB12BF1BCE75E /* GoertzelTests.swift */,
 				5AAD9665ECAB652C0FAECA81 /* MIDIMappingTests.swift */,
 				3E94B712106DC3E29A62F877 /* MorseDecodeTests.swift */,
+				0049BF3AC06E0AE9994F9870 /* OpusDecoderTests.swift */,
 				9CCD236E9AA1F4DC953B267E /* PanadapterTests.swift */,
 				C9DB75C894DE8BA61BD6B1BE /* QSOLogTests.swift */,
 				97634B5D867747144BA6129C /* RadioMeterTests.swift */,
@@ -535,7 +540,6 @@
 				};
 			};
 			buildConfigurationList = 5CDAD762A39B13A1303B7EF3 /* Build configuration list for PBXProject "FlexAccess" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -545,12 +549,13 @@
 			mainGroup = B8732101ACED2557CB5C5943;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			productRefGroup = E5BAD5EC5358DCE230F1C8E1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A860AE59995D23F30576179F /* FlexAccessTests */,
 				334734FADF45EA8939E66CE6 /* FlexAccess_iOS */,
 				10D86BBF89499F51B66CD830 /* FlexAccess_macOS */,
+				A860AE59995D23F30576179F /* FlexAccessTests */,
 			);
 		};
 /* End PBXProject section */
@@ -619,6 +624,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3732D7BE8D4F98B3AB062DC5 /* AppFileLogger.swift in Sources */,
 				659765283E29CFDE2A13F258 /* CWDecoder.swift in Sources */,
 				DE2D9B2C40E7EC33339F694E /* CWProtocolTests.swift in Sources */,
 				2DD5C0B4F20F04E634B90499 /* ConnectionProfile.swift in Sources */,
@@ -636,6 +642,8 @@
 				198D91E6C3B00A113F25657D /* MIDIMappingTests.swift in Sources */,
 				959144687A345BF5E3D7C136 /* MorseDecodeTests.swift in Sources */,
 				3A75AFDCD52C6F7811E331F4 /* MorseTable.swift in Sources */,
+				D5F00C0A55E159092958E17A /* OpusDecoder.swift in Sources */,
+				D12126779CE573FD017DEA1B /* OpusDecoderTests.swift in Sources */,
 				463562455A51ACABABF03518 /* Panadapter.swift in Sources */,
 				77D5ACF940D5DCC1A1F5A0D3 /* PanadapterTests.swift in Sources */,
 				6B9C24F5715EA3707F91DD96 /* QSOEntry.swift in Sources */,

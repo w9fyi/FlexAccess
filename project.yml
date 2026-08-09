@@ -120,6 +120,8 @@ targets:
       - path: FlexAccess/CW/CWDecoder.swift
       - path: FlexAccess/Panadapter/FFTReceiver.swift
       - path: FlexAccess/MIDI/MIDIMapping.swift
+      - path: FlexAccess/Audio/OpusDecoder.swift
+      - path: FlexAccess/Support/AppFileLogger.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.w9fyi.flexaccess.tests

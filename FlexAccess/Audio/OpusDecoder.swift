@@ -73,6 +73,9 @@ final class OpusDecoder {
     deinit { AudioConverterDispose(converter) }
 
     func decode(bytes: UnsafePointer<UInt8>, count: Int) -> [Float]? {
+        // A zero-length buffer triggers Opus packet-loss concealment (synthesized
+        // silence, noErr) rather than a converter error — reject it before that path.
+        guard count > 0 else { return nil }
         var ctx = OpusInputContext(data: UnsafeRawPointer(bytes), size: count)
         var numFrames: UInt32 = 480
         var output = [Float](repeating: 0, count: 480)
